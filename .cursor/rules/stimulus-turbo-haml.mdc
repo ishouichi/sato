@@ -1,0 +1,133 @@
+---
+description:
+globs: *.haml,*.js
+alwaysApply: false
+---
+# Stimulus・Turbo・HAML規約
+Stimulusコントローラー、Turbo要素、HAMLテンプレートに関する実装規約をまとめています。
+
+
+
+### Stimulusの命名規則とディレクトリ構造
+- **ファイル名**:
+  - 正しい形式: `単語-単語_controller.js`
+  - 単語間はハイフン(`-`)、controllerとの間はアンダースコア(`_`)
+  - 例: `progress-chart_controller.js`
+
+- **ディレクトリ構造**:
+  - ビューのパスと対応する構造に配置する
+  - 例: ビューが `app/views/product_schedule_task_collections/` にある場合
+    - コントローラーは `app/javascript/controllers/product_schedule_task_collections/` に配置
+
+- **HTML参照（data-controller属性）**:
+  - ディレクトリありの場合: `ディレクトリ名--コントローラー名`
+    - ディレクトリとコントローラー間はダブルハイフン(`--`)
+    - 例: `data-controller="product-schedule-task-collections--progress-chart"`
+  - ディレクトリなしの場合: `コントローラー名`
+    - 例: `data-controller="progress-chart"`
+
+- **バリュー参照**:
+  - ディレクトリありの場合: `ディレクトリ名__コントローラー名_バリュー名_value`
+    - ディレクトリとコントローラー間はダブルアンダースコア(`__`)
+    - 例: `data-product-schedule-task-collections__progress-chart-progress-data-value="{}"`
+  - ディレクトリなしの場合: `コントローラー名_バリュー名_value`
+    - 例: `data-progress-chart-progress-data-value="{}"`
+
+- **イベントバインド**:
+    - HTML側でStimulusの記法を使用し、コントローラー内での直接バインドは避ける
+    - data-action属性で指定（例: click->controller#action）
+
+## APIやAjax等のURLを扱う場合のルール
+
+1. **API・Ajax等のURLは必ずRailsの_pathヘルパーで生成すること。JSファイル内に直接URL文字列を書かないこと。**
+2. **viewで_pathヘルパーを使い、data属性やでJSに渡すこと。**
+3. **ルーティングや環境依存の問題を防ぐため、必ず_pathヘルパーを使うこと。**
+---
+
+### コーディング例
+
+#### HAML（view側で_pathヘルパーを使い、data属性で渡す）
+
+```haml
+#item-search{ data: { controller: 'item-search', searchUrl: search_items_path } }
+```
+
+#### Stimulusコントローラー（data属性からURLを取得し、$.ajaxでリクエスト）
+
+```js
+import { Controller } from "@hotwired/stimulus"
+
+export default class extends Controller {
+  static targets = ["result"]
+
+  search(event) {
+    const keyword = event.target.value
+    const url = this.element.dataset.searchurl
+    $.ajax({
+      url: url,
+      type: 'GET',
+      data: { q: keyword },
+      success: (html) => {
+        this.resultTarget.innerHTML = html
+      }
+    })
+  }
+}
+```
+
+## Turbo 要素規約
+- turbo_frameの命名: viewのファイル構成をケバブケースで区切り、意味を持つ単語を一つ付加
+- data属性でのturbo_frame使用時は必ず `turbo: true` を記載
+
+# Turbo Dialog画面遷移規約
+Turbo Dialogを用いた画面遷移や、関連するHAML・コントローラーの記述規約をまとめています。
+
+## Turbo Dialog 画面遷移規約
+- リンク要素の基本構造:
+  ```haml
+  = link_to path, class: 'text-secondary', data: { turbo: true, turbo_frame: 'xxx-dialog' } do
+    %i.アイコンクラス
+    リンクテキスト
+  = turbo_frame_tag 'xxx-dialog', class: 'full-dialog', data: { controller: 'turbo-dialog', action: 'turbo:frame-render->turbo-dialog#open' }
+  ```
+- コントローラーの基本構造:
+  ```ruby
+  def action_name
+    @page_title = 'ページタイトル'
+    # 必要な処理
+  end
+  ```
+- レンダリングするビューの基本構造:
+  ```haml
+  = turbo_frame_tag 'xxx-dialog' do
+    .dialog-add-target
+      .full-dialog-body
+        = render 'shared/header'
+        # ファイルパスをハイフンで繋げたIDを記載
+        #controller-name-action-name
+  ```
+- 命名規則:
+    - turbo_frame の id: 機能を表す名前に `-dialog` を付加
+    - ビュー内の id: コントローラー名とアクション名をハイフンで接続
+
+
+# コントローラー・ビュー対応・命名規約
+コントローラーの配置・継承・命名、ビューとの対応関係、命名規則をまとめています。
+
+## コントローラー規約
+- グループ機能関連のコントローラー:
+    - パス: `app/controllers/group/` 以下に配置
+    - 継承: 必ず `ApplicationGroupController` を継承する
+    - 命名規則: `Group::` モジュール内に定義
+
+## ビューとコントローラーの対応規約
+- ビューファイルを扱う際は、必ず対応するコントローラーも確認する
+- コントローラーの探し方:
+    - ビューパス: `app/views/[namespace]/[controller]/[action].html.haml`
+    - 対応するコントローラー: `app/controllers/[namespace]/[controller]_controller.rb`
+      例:
+    - ビュー: `app/views/admin/users/index.html.haml`
+    - コントローラー: `app/controllers/admin/users_controller.rb`
+- 部分テンプレート（パーシャル）の場合:
+    - ビュー: `app/views/[namespace]/[controller]/_partial.html.haml`
+    - 呼び出し元のコントローラーアクションを確認

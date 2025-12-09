@@ -1,0 +1,25 @@
+ja:
+  activerecord:
+    models:
+      user: "ユーザー"
+    attributes:
+      user:
+        email: "メールアドレス"
+        password: "パスワード"
+        password_confirmation: "パスワード（確認）"
+        remember_me: "ログイン状態を保持する"
+
+  home:
+    index:
+      welcome: "Satoへようこそ"
+      logged_in_as: "ログイン中:"
+      log_out: "ログアウト"
+      please_sign_up_or_log_in: "続行するには新規登録またはログインしてください"
+      sign_up: "新規登録"
+      log_in: "ログイン"
+
+  errors:
+    messages:
+      not_saved:
+        one: "%{resource}に1件のエラーがあります。"
+        other: "%{resource}に%{count}件のエラーがあります。"

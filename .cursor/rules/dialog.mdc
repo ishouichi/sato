@@ -1,0 +1,73 @@
+---
+description: 
+globs: *.haml
+alwaysApply: false
+---
+
+# Turbo Dialog × Turbo Frame 連携規約
+ここでは、画面遷移をせずに、ダイアログ方式で表示をすると場合の手順を記載します。
+独自のフレームワークで、stimlus と turbo を使います。
+
+## Turbo Dialog & Turbo Frame 実装規約
+
+### 1. Turbo Frameの使い方
+- ダイアログ表示対象の領域は、`turbo_frame_tag` でラップする。
+- Turbo FrameのIDは一意で、ダイアログ用途の場合は `xxx-dialog` などの命名とする。
+- Turbo Frameには必ず `class: 'full-dialog'` を付与する。
+- Turbo Dialogコントローラーを使う場合は、以下のdata属性を付与すること。
+  ```haml
+  = turbo_frame_tag 'chemical-select-dialog-area', class: 'full-dialog', data: { controller: 'turbo-dialog', action: 'turbo:frame-render->turbo-dialog#open' }
+  ```
+
+### 2. ダイアログを開くリンク・ボタン
+- Turbo Frameをターゲットにしたリンクやボタンは、`link_to` もしくは `button_to` で生成し、`data-turbo-frame` 属性でターゲットIDを指定する。
+  ```haml
+  = link_to '農薬を追加', chemical_select_dialog_schedules_path, data: { turbo: true, turbo_frame: 'chemical-select-dialog-area' }
+  ```
+- Turbo Dialog規約に従い、`data-turbo` や `data-turbo-frame` を正しく指定する。
+
+### 3. Turbo Dialogコントローラーの利用
+- Turbo Dialog用Stimulusコントローラー（例: `turbo-dialog_controller.js`）は、Turbo Frameのdata属性でバインドする。
+- コントローラーの `open` アクションは `turbo:frame-render` イベントで呼び出す。
+- コントローラーの例:
+  ```js
+  export default class extends Controller {
+    open() {
+      dialog.open(`#${this.element.id}`)
+    }
+  }
+  ```
+
+### 4. ダイアログ内Viewの構造
+- Turbo Frame内のViewは、以下の構造を必ず含めること。
+  - `.dialog-add-target`
+  - `.full-dialog-body`
+  - `= render 'shared/header'`（ダイアログ制御用）
+- 例:
+  ```haml
+  = turbo_frame_tag 'chemical-select-dialog-area' do
+    .dialog-add-target
+      .full-dialog-body
+        = render 'shared/header'
+        // ...ダイアログの内容...
+  ```
+
+### 5. ページロード時の自動リクエスト制御
+- Turbo Frameの `src` 属性は**通常は指定しない**（ページロード時に自動リクエストを発生させない）。
+- 必要に応じて、リンクやボタン押下時のみTurbo Frameのリクエストが発生するようにする。
+
+### 6. ダイアログを閉じる
+- 開いたダイアログを閉じるときは、 dialog.close() で閉じることができる
+
+---
+
+## 注意点
+- Turbo FrameのID・リンクの `data-turbo-frame` 指定は必ず一致させること。
+- Turbo Dialogコントローラーのバインド漏れや、View構造の不備に注意。
+- Turbo Frameのsrc属性を使う場合は、レスポンスのトップレベルが必ず同じIDのturbo-frameタグであること。
+
+---
+
+## 推奨パターンまとめ
+- Turbo Dialogを使ったダイアログ表示は、**StimulusコントローラーとTurbo Frameのdata属性連携**で完結させる。
+- JSでの手動リロードやURL直書きは避け、**RailsのパスヘルパーとTurboの仕組み**を最大限活用する。

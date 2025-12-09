@@ -1,0 +1,215 @@
+---
+description:
+globs: *_spec.rb
+alwaysApply: false
+---
+# SystemSpecテストガイド
+
+## testid命名規則
+
+### 基本原則
+- 全ての要素に`data-testid`属性を設定する
+- 機能名-要素種別-動作の形式で命名する
+- ケバブケース（kebab-case）を使用する
+- if は使用しない
+
+### システム
+- capybara
+- playwrite
+
+### 実装方針
+1. 関連する view, controller, model, stimlus を把握する
+2. 関連するファイルの仕組みを深く理解する
+3. 関連する system spec の実装を確認し、開始 path を参考にする
+4. ユーザーの実際の操作に合わせてシナリオを考える
+5. シナリオに合わせてテストを作成
+6. 実行してシナリオ通りに動くように修正を行う。
+7. systemspec では、機能を動かし、保存した後に、再度、データを開いて確認するところまでするのがゴールです
+8. 全てが完了した後に、もう一度、全て testid でターゲットが記載されているか確認してください
+9. シナリオと違う動きをした場合はバグの可能性があるため詳細を報告すること
+10. シナリオでは、データを実際に保存して、再度、保存したデータを開き、意図したデータになっているか確認すること
+
+
+### 命名パターン
+```ruby
+# 基本形式: [機能名]-[要素種別]-[動作/状態]
+data: { testid: 'schedule-task-add-button' }
+data: { testid: 'schedule-task-edit-modal' }
+data: { testid: 'schedule-task-name-input' }
+```
+
+### 要素種別の標準化
+- `button`: ボタン要素
+- `modal`: モーダル・ダイアログ
+- `input`: 入力フィールド
+- `row`: 行要素
+- `name`: 名前表示要素
+- `link`: リンク要素
+
+### 具体例（スケジュール機能）
+```haml
+# ボタン類
+data: { testid: 'schedule-task-add-button' }
+data: { testid: 'schedule-task-submit-button' }
+data: { testid: 'schedule-task-normal-cancel-button' }
+data: { testid: 'schedule-task-new-cancel-button' }
+data: { testid: 'schedule-task-delete-button' }
+
+# モーダル・入力
+data: { testid: 'schedule-task-edit-modal' }
+data: { testid: 'schedule-task-name-input' }
+
+# 表示要素
+data: { testid: 'schedule-task-row' }
+data: { testid: 'schedule-task-name' }
+data: { testid: 'schedule-name-display' }
+
+# ナビゲーション
+data: { testid: 'schedules-link' }
+data: { testid: 'schedule-edit' }
+```
+
+## テストフロー設計
+
+### アクセスパスの標準化
+テストの開始は`other_path`からアクセスする：
+
+```ruby
+# 正しいフロー
+visit other_path
+find(:test_id, 'schedules-link').click
+find(:test_id, 'schedule-name-display', text: schedule.name).click
+find(:test_id, 'schedule-edit').click
+expect(page).to have_selector(:test_id, 'schedule-task-add-button')
+```
+
+## テスト実行方法
+
+### 基本的なテスト実行
+PLAYWRIGHT_TRACE オプションをつけて実行記録を保存する
+```bash
+# 通常のSystemSpecテスト実行
+PLAYWRIGHT_TRACE=true bundle exec rspec spec/system/your_spec.rb
+```
+### 実行オプション
+もしテストを詳細な出力で実行したい場合は、-v ではなく以下のオプションを使います：
+--format documentation または -fd：テストの説明を表示
+--format progress または -fp：ドット形式で進捗を表示（デフォルト）
+
+## アサーション制限と対応策
+
+### 1. CSS セレクタアサーション
+**❌ 使用禁止:**
+```ruby
+expect(page).to have_css('label[data-type="chemical"].active')
+```
+
+**✅ 推奨:**
+```ruby
+expect(page).to have_selector('label[data-type="chemical"].active')
+```
+
+#### A. Capybara/VisibilityMatcher
+**問題:** `visible: true/false` の非推奨警告
+
+**修正:**
+```ruby
+# ❌ 非推奨
+visible: true
+visible: false
+
+# ✅ 推奨
+visible: :visible
+visible: :hidden
+```
+
+**一括修正コマンド:**
+```bash
+find spec/system -name "*.rb" -exec sed -i '' 's/visible: true/visible: :visible/g' {} \;
+find spec/system -name "*.rb" -exec sed -i '' 's/visible: false/visible: :hidden/g' {} \;
+```
+
+#### B. Naming/VariableName
+**問題:** 日本語変数名の使用
+
+**修正例:**
+```ruby
+# ❌ 日本語変数名
+task_土作り = create(:schedule_task)
+task_肥料散布 = create(:schedule_task)
+
+# ✅ 英語変数名
+task_soil_preparation = create(:schedule_task)
+task_fertilizer_application = create(:schedule_task)
+```
+
+#### C. Lint/ShadowingOuterLocalVariable
+**問題:** 外部変数のシャドウイング
+
+**修正例:**
+```ruby
+# ❌ パラメータ名が外部変数と重複
+lambda do |example|
+  # example が外部スコープの変数と重複
+end
+
+# ✅ 異なるパラメータ名を使用
+lambda do |ex|
+  # 重複を回避
+end
+```
+
+#### D. RSpec/MessageSpies
+**問題:** `expect().to receive()` パターンの非推奨
+
+**修正例:**
+```ruby
+# ❌ 非推奨パターン
+expect(ProductScheduleTasksRecalculateJob).to receive(:agrihub_job_perform)
+
+# ✅ 推奨パターン
+allow(ProductScheduleTasksRecalculateJob).to receive(:agrihub_job_perform)
+# テスト実行後
+expect(ProductScheduleTasksRecalculateJob).to have_received(:agrihub_job_perform)
+```
+
+#### E. RSpec/ExpectInHook
+**問題:** `before` フック内での `expect` 使用
+
+**修正例:**
+```ruby
+# ❌ before フック内で expect
+before do
+  expect(page).to have_selector(:test_id, 'element')
+end
+
+# ✅ find メソッドで要素の存在を確認（自動待機）
+before do
+  find(:test_id, 'element')
+end
+```
+
+#### F. RSpec/LetSetup
+**問題:** 未使用の `let!` 宣言
+
+**修正例:**
+```ruby
+# ❌ 未使用の let!
+let!(:unused_variable) { create(:model) }
+
+# ✅ 使用される場合は let に変更
+let(:used_variable) { create(:model) }
+
+# ✅ セットアップが必要な場合は before フックに移動
+before do
+  create(:model)
+end
+```
+
+## 注意事項
+
+1. **testidの一意性**: 同一ページ内でtestidが重複しないよう注意
+2. **動的要素**: JavaScriptで生成される要素は明示的にtestidを設定
+3. **待機処理**: 非同期処理完了を確実に待機してからアサーション実行
+4. **フロー確認**: 実際のユーザー操作フローに沿ったテスト設計
+5. **状態管理**: 各テストケースで初期状態を明確に定義

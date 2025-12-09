@@ -1,0 +1,63 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+# Railsプロジェクト全体方針・構成・開発環境
+Railsプロジェクトの基本方針、ディレクトリ構成、開発環境のルールをまとめています。
+
+## 基本方針
+- ルーティング、コントローラー、モデル、ビュー、その他のRailsコンポーネントについては、公式のRuby on Railsガイドのベストプラクティスに従う
+- Turbo を使用したモダンな実装
+- Stimulus を使用したモダンな実装
+- ビューテンプレートは HAML を使用
+- privateメソッドの書き方:
+    - 全てのRubyファイルで `private def method_name` の形式を使用
+    - 正しい例:
+      ```ruby
+      private def set_user
+        @user = User.find(params[:id])
+      end
+      ```
+    - 避けるべき例:
+      ```ruby
+      private
+      def set_user
+        @user = User.find(params[:id])
+      end
+      ```
+
+## プロジェクト構成
+- app/
+    - controllers/: コントローラー
+    - models/: モデル
+    - views/: HAML ビュー
+    - javascript/: Stimulus コントローラー
+    - assets/: SCSS ファイル
+    - jobs/: バックグラウンドジョブ
+
+## 開発環境
+- RSpec によるテスト
+- Rubocop による静的解析
+- /.rubocop.yml のルールに従ったコーディング
+- HAML-Lint によるコードチェック
+- playwrite を使った systemspec テスト
+- dartsass を使った scss
+
+## コントローラーの命名規則:
+- 正しい例: `class Group::UserFertilizerStocksController < ApplicationGroupController`
+- 誤った例:
+  ```ruby
+  module Group
+    class UserFertilizerStocksController < ApplicationGroupController
+  ```
+- ネストされたモジュールを使用せず、直接的に名前空間付きのクラス定義を使用する
+
+## private メソッドの書き方
+- 正しい例: `private def set_schedule`
+- 誤った例:
+  ```ruby
+  private
+
+  def set_schedule
+  ```

@@ -1,0 +1,430 @@
+---
+description:
+globs: *_spec.rb
+alwaysApply: false
+---
+# RSpecテストベストプラクティス
+
+## 包括的なテストカバレッジ
+
+### 基本原則
+- 一般的なケースとエッジケースの両方をテストする
+- 無効な入力値やエラー条件を含む全てのシナリオを考慮する
+- 各メソッドや動作について考えられる全ての可能性を確実にテストする
+
+### テストすべき項目
+```ruby
+# 正常系
+it 'returns valid result when input is correct' do
+  expect(subject.method_name('valid_input')).to eq expected_result
+end
+
+# 異常系
+it 'raises error when input is invalid' do
+  expect { subject.method_name(nil) }.to raise_error(ArgumentError)
+end
+
+# 境界値テスト
+it 'handles empty collections' do
+  expect(subject.process([])).to eq []
+end
+
+# エッジケース
+it 'handles maximum values correctly' do
+  expect(subject.validate(Float::INFINITY)).to be false
+end
+```
+
+## 可読性と明確さ
+
+### 命名規則
+```ruby
+# ✅ 明確で説明的な名前
+describe User do
+  context 'when user is active' do
+    it 'returns true for valid email' do
+      # テスト内容
+    end
+  end
+
+  context 'when user is inactive' do
+    it 'returns false regardless of email validity' do
+      # テスト内容
+    end
+  end
+end
+
+# ❌ 曖昧な名前
+describe User do
+  it 'works' do
+    # 何をテストしているか不明
+  end
+end
+```
+
+### アサーション構文
+```ruby
+# ✅ expect構文を使用
+expect(user.email).to eq 'test@example.com'
+expect(user).to be_valid
+expect { user.save! }.to change(User, :count).by(1)
+
+# ❌ should構文（非推奨）
+user.email.should == 'test@example.com'
+```
+
+### 簡潔性
+```ruby
+# ✅ 簡潔で必要最小限
+it 'validates email format' do
+  user = build(:user, email: 'invalid-email')
+  expect(user).to be_invalid
+  expect(user.errors[:email]).to include('is invalid')
+end
+
+# ❌ 冗長で複雑
+it 'validates email format' do
+  user = User.new(
+    name: 'Test User',
+    email: 'invalid-email',
+    password: 'password123',
+    # 不要な属性の設定
+  )
+  if user.valid?
+    # 複雑な条件分岐
+  else
+    # 長いアサーション
+  end
+end
+```
+
+## テスト構造
+
+### 論理的な構成
+```ruby
+describe User do
+  # クラス/モジュールの説明
+  describe '#full_name' do
+    # メソッドごとの説明
+    context 'when both first and last names are present' do
+      # 異なるシナリオごとの説明
+      it 'returns concatenated full name' do
+        # 具体的な動作の説明
+      end
+    end
+
+    context 'when last name is missing' do
+      it 'returns only first name' do
+      end
+    end
+  end
+end
+```
+
+### subject の活用
+```ruby
+# ✅ subjectを使用して重複を避ける
+describe User do
+  subject { build(:user, email: email) }
+
+  context 'when email is valid' do
+    let(:email) { 'test@example.com' }
+
+    it { is_expected.to be_valid }
+  end
+
+  context 'when email is invalid' do
+    let(:email) { 'invalid' }
+
+    it { is_expected.to be_invalid }
+  end
+end
+```
+
+### ファイル構造
+```ruby
+# テストファイルのパスは対象ファイルの構造と一致させる
+# app/models/user.rb → spec/models/user_spec.rb
+# app/controllers/users_controller.rb → spec/controllers/users_controller_spec.rb
+# app/services/user_service.rb → spec/services/user_service_spec.rb
+```
+
+## テストデータ管理
+
+### let と let! の使い分け
+```ruby
+describe User do
+  # 遅延評価（必要な時に実行）
+  let(:user) { build(:user) }
+
+  # 即座に実行（before フックのような動作）
+  let!(:existing_user) { create(:user, email: 'existing@example.com') }
+
+  context 'when validating email uniqueness' do
+    it 'rejects duplicate emails' do
+      duplicate_user = build(:user, email: existing_user.email)
+      expect(duplicate_user).to be_invalid
+    end
+  end
+end
+```
+
+### FactoryBotの活用
+```ruby
+# ✅ FactoryBotを使用
+let(:user) { create(:user, :with_profile, email: 'test@example.com') }
+let(:users) { create_list(:user, 3) }
+
+# ❌ 手動でのオブジェクト作成
+let(:user) do
+  User.create!(
+    name: 'Test User',
+    email: 'test@example.com',
+    password: 'password',
+    # 多くの属性の手動設定
+  )
+end
+```
+
+### 最小限で必要な設定
+```ruby
+# ✅ テストに必要な属性のみ設定
+describe '#send_notification' do
+  let(:user) { build(:user, email: 'test@example.com') }
+
+  it 'sends email to user' do
+    expect { user.send_notification }.to change { ActionMailer::Base.deliveries.count }.by(1)
+  end
+end
+
+# ❌ 不要な属性まで設定
+let(:user) do
+  build(:user,
+    email: 'test@example.com',
+    name: 'Test User',        # このテストには不要
+    age: 25,                  # このテストには不要
+    address: 'Test Address'   # このテストには不要
+  )
+end
+```
+
+## 独立性と分離
+
+### テストの独立性
+```ruby
+# ✅ 各テストが独立している
+describe User do
+  describe '#activate' do
+    it 'sets active status to true' do
+      user = create(:user, active: false)
+      user.activate
+      expect(user.reload.active).to be true
+    end
+
+    it 'sends activation email' do
+      user = create(:user)
+      expect { user.activate }.to change { ActionMailer::Base.deliveries.count }.by(1)
+    end
+  end
+end
+
+# ❌ テスト間で状態を共有
+describe User do
+  let!(:user) { create(:user, active: false) }
+
+  it 'sets active status to true' do
+    user.activate
+    expect(user.active).to be true  # 次のテストに影響する
+  end
+
+  it 'is initially inactive' do
+    expect(user.active).to be false  # 前のテストの影響を受ける可能性
+  end
+end
+```
+
+### モックとスタブの適切な使用
+```ruby
+# ✅ 外部サービスのモック
+describe NotificationService do
+  it 'sends push notification' do
+    allow(PushNotificationAPI).to receive(:send)
+
+    service.send_notification('message')
+
+    expect(PushNotificationAPI).to have_received(:send).with('message')
+  end
+end
+
+# ✅ メソッドの戻り値をスタブ
+describe WeatherService do
+  it 'returns formatted temperature' do
+    allow(external_api).to receive(:get_temperature).and_return(25.7)
+
+    expect(service.current_temperature).to eq '26°C'
+  end
+end
+
+# ❌ 過度なモック（実際の動作をテストしていない）
+it 'calculates total price' do
+  allow(item).to receive(:price).and_return(100)
+  allow(calculator).to receive(:calculate).and_return(200)
+
+  # 実際の計算ロジックがテストされていない
+  expect(calculator.calculate).to eq 200
+end
+```
+
+## 重複の回避
+
+### 共通の動作をshared_examplesで抽象化
+```ruby
+# shared_examples の定義
+shared_examples 'a timestamped model' do
+  it { is_expected.to respond_to(:created_at) }
+  it { is_expected.to respond_to(:updated_at) }
+
+  it 'sets created_at on creation' do
+    expect(subject.created_at).to be_within(1.second).of(Time.current)
+  end
+end
+
+# 使用
+describe User do
+  it_behaves_like 'a timestamped model'
+end
+
+describe Post do
+  it_behaves_like 'a timestamped model'
+end
+```
+
+### カスタムマッチャーの活用
+```ruby
+# カスタムマッチャーの定義
+RSpec::Matchers.define :be_a_valid_email do
+  match do |email|
+    email =~ /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z\d\-]+)*\.[a-z]+\z/i
+  end
+
+  failure_message do |email|
+    "expected #{email} to be a valid email address"
+  end
+end
+
+# 使用
+describe User do
+  it 'has valid email format' do
+    expect(user.email).to be_a_valid_email
+  end
+end
+```
+
+## 新規開発者への配慮
+
+### 明確な意図の表現
+```ruby
+# ✅ 意図が明確
+describe '#calculate_discount' do
+  context 'when user is premium member' do
+    let(:user) { create(:user, :premium) }
+
+    it 'applies 20% discount to base price' do
+      base_price = 1000
+      expected_discounted_price = 800
+
+      result = calculator.calculate_discount(user, base_price)
+
+      expect(result).to eq expected_discounted_price
+    end
+  end
+end
+
+# ❌ 意図が不明確
+it 'calculates correctly' do
+  result = calculator.calculate_discount(user, 1000)
+  expect(result).to eq 800
+end
+```
+
+### 複雑なロジックへのコメント
+```ruby
+describe '#complex_calculation' do
+  it 'applies compound interest formula correctly' do
+    # 複利計算: P(1 + r/n)^(nt)
+    # P = 元本, r = 年利率, n = 年間複利回数, t = 年数
+    principal = 1000
+    annual_rate = 0.05
+    compounds_per_year = 12
+    years = 2
+
+    expected = principal * ((1 + annual_rate / compounds_per_year) ** (compounds_per_year * years))
+
+    result = calculator.compound_interest(principal, annual_rate, compounds_per_year, years)
+
+    expect(result).to be_within(0.01).of(expected)
+  end
+end
+```
+
+### 段階的なテストの構築
+```ruby
+describe UserRegistration do
+  describe '#valid?' do
+    # 基本ケースから始める
+    context 'with valid attributes' do
+      let(:registration) { build(:user_registration, :valid) }
+
+      it { expect(registration).to be_valid }
+    end
+
+    # 各要素を個別にテスト
+    context 'when email is missing' do
+      let(:registration) { build(:user_registration, email: nil) }
+
+      it 'is invalid' do
+        expect(registration).to be_invalid
+        expect(registration.errors[:email]).to include("can't be blank")
+      end
+    end
+
+    # より複雑なケースへ
+    context 'when email is already taken' do
+      let!(:existing_user) { create(:user, email: 'test@example.com') }
+      let(:registration) { build(:user_registration, email: 'test@example.com') }
+
+      it 'is invalid with appropriate error message' do
+        expect(registration).to be_invalid
+        expect(registration.errors[:email]).to include('has already been taken')
+      end
+    end
+  end
+end
+```
+
+## ファイル構成の規則
+
+### 基本構造
+```
+spec/
+├── models/           # モデルのテスト
+├── controllers/      # コントローラーのテスト
+├── services/         # サービスクラスのテスト
+├── forms/           # フォームオブジェクトのテスト
+├── helpers/         # ヘルパーのテスト
+├── jobs/            # ジョブのテスト
+├── mailers/         # メーラーのテスト
+├── validators/      # バリデーターのテスト
+├── requests/        # リクエストテスト（API）
+├── system/          # システムテスト（E2E）
+├── support/         # テストサポートファイル
+└── factories/       # FactoryBotファクトリー
+```
+
+### 命名規則
+```ruby
+# ファイル名は対象クラス名 + _spec.rb
+# app/models/user.rb → spec/models/user_spec.rb
+# app/controllers/users_controller.rb → spec/controllers/users_controller_spec.rb
+# app/services/notification_service.rb → spec/services/notification_service_spec.rb
+```

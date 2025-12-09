@@ -1,0 +1,72 @@
+ja:
+  devise:
+    confirmations:
+      confirmed: "メールアドレスの確認が完了しました。"
+      send_instructions: "数分以内にメールアドレス確認の方法が記載されたメールが送信されます。"
+      send_paranoid_instructions: "メールアドレスが登録済みの場合、確認方法が記載されたメールが送信されます。"
+
+    failure:
+      already_authenticated: "既にログインしています。"
+      inactive: "アカウントが有効化されていません。"
+      invalid: "メールアドレスまたはパスワードが正しくありません。"
+      locked: "アカウントがロックされています。"
+      last_attempt: "あと1回失敗するとアカウントがロックされます。"
+      not_found_in_database: "メールアドレスまたはパスワードが正しくありません。"
+      timeout: "セッションの有効期限が切れました。再度ログインしてください。"
+      unauthenticated: "続行するにはログインまたはアカウント登録が必要です。"
+      unconfirmed: "続行する前にメールアドレスの確認が必要です。"
+
+    passwords:
+      no_token: "パスワード再設定メールからアクセスしないとこのページにはアクセスできません。URLが完全であることを確認してください。"
+      send_instructions: "数分以内にパスワード再設定の案内メールが送信されます。"
+      send_paranoid_instructions: "メールアドレスが登録済みの場合、パスワード再設定の案内メールが送信されます。"
+      updated: "パスワードが正常に変更されました。ログイン済みです。"
+      updated_not_active: "パスワードが正常に変更されました。"
+      new:
+        title: "パスワードをお忘れですか？"
+        send_instructions: "パスワード再設定用のメールを送信する"
+
+    registrations:
+      destroyed: "アカウントを削除しました。またのご利用をお待ちしています。"
+      signed_up: "アカウント登録が完了しました。"
+      signed_up_but_inactive: "アカウント登録は完了しましたが、有効化されていないためログインできません。"
+      signed_up_but_locked: "アカウント登録は完了しましたが、アカウントがロックされているためログインできません。"
+      signed_up_but_unconfirmed: "確認用のメールを送信しました。メール内のリンクからアカウントを有効化してください。"
+      update_needs_confirmation: "アカウント情報を更新しました。新しいメールアドレス宛に確認メールを送信しました。"
+      updated: "アカウント情報を更新しました。"
+      updated_but_not_signed_in: "アカウント情報を更新しました。パスワードを変更したため、再度ログインしてください。"
+      new:
+        sign_up: "新規登録"
+        minimum_password_length: "パスワードは%{count}文字以上で入力してください"
+
+    sessions:
+      signed_in: "ログインしました。"
+      signed_out: "ログアウトしました。"
+      already_signed_out: "ログアウトしました。"
+      new:
+        sign_in: "ログイン"
+
+    unlocks:
+      send_instructions: "数分以内にアカウントロック解除方法が記載されたメールが送信されます。"
+      send_paranoid_instructions: "アカウントが存在する場合、ロック解除方法が記載されたメールが送信されます。"
+      unlocked: "アカウントのロックを解除しました。ログインして続行してください。"
+
+    shared:
+      links:
+        log_in: "ログイン"
+        sign_up: "新規登録"
+        forgot_your_password: "パスワードをお忘れですか？"
+        confirmation_instructions: "確認メールを受け取っていませんか？"
+        unlock_instructions: "ロック解除メールを受け取っていませんか？"
+        omniauth: "%{provider}でログイン"
+
+  errors:
+    messages:
+      already_confirmed: "は既に確認済みです。ログインをお試しください。"
+      confirmation_period_expired: "%{period}以内に確認する必要があります。新しい確認メールをリクエストしてください。"
+      expired: "の有効期限が切れています。新しいものをリクエストしてください。"
+      not_found: "が見つかりません。"
+      not_locked: "はロックされていません。"
+      not_saved:
+        one: "%{resource}に1件のエラーがあります。"
+        other: "%{resource}に%{count}件のエラーがあります。"

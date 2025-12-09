@@ -1,0 +1,54 @@
+---
+description:
+globs: *.scss
+alwaysApply: false
+---
+# SCSS構造と命名規則
+scss は dart sass を利用
+
+## ファイル構造と命名規則
+1. SCSSファイルはHAMLファイルと同じ階層構造に配置する
+   - 例: HAMLが `app/views/user_crops/index.html.haml` の場合、SCSSは `app/assets/stylesheets/user_crops/_index.scss`
+
+2. ファイル名は先頭にアンダースコア（`_`）をつけ、対応するHAMLファイル名と一致させる
+   - 例: `index.html.haml` → `_index.scss`
+   - 例: `form.html.haml` → `_form.scss`
+
+3. スタイル定義は対応するコンポーネントやビューに特化したものにする
+   - クラス名はビューのファイルパスをケバブケースにした命名にする
+   - 例: `app/views/time_line_tasks/index.html.haml` → `.time-line-tasks-index`
+   - 例: `app/views/product_schedule_task_collections/show.html.haml` → `.product-schedule-task-collections-show`
+
+## Dart Sassのインポート方法
+1. 新規作成したSCSSファイルは `app.css.scss` に `@use` ディレクティブで取り込む
+   ```scss
+   @use "time_line_tasks/_index" as time_line_tasks_index;
+   ```
+
+2. 命名の衝突を避けるため、必要に応じて `as` でエイリアスを設定する
+   - エイリアスはファイルパスをアンダースコアでつないだ形式が推奨
+   - 例: `time_lines/_form` → `time_lines_form`
+   - 例: `product_schedule_task_collections/_show` → `product_schedule_task_collections_show`
+
+3. `@import` ではなく `@use` を使用する（Dart Sass対応）
+
+4. 同じカテゴリーのSCSSファイルはapp.css.scss内でグループ化して記述する
+   - 新しいファイルを追加する際は、関連するファイルの近くに配置する
+
+## 実装手順
+1. HAMLファイルのパスと名前を確認する
+2. 対応するSCSSファイルを適切なディレクトリに作成する
+   - ファイル名は先頭にアンダースコア（`_`）をつける
+3. CSSクラスは対応するビューのパスをケバブケースにした命名にする
+4. app.css.scssに新しいファイルを追加する
+   - 同じカテゴリのファイル近くに追加
+   - 適切なエイリアスを設定する
+
+## 例
+- [app/views/time_line_tasks/index.html.haml](mdc:app/views/time_line_tasks/index.html.haml)に対応するSCSSファイル:
+  - 場所: [app/assets/stylesheets/time_line_tasks/_index.scss](mdc:app/assets/stylesheets/time_line_tasks/_index.scss)
+  - app.css.scssでのインポート: `@use "time_line_tasks/_index" as time_line_tasks_index;`
+
+- [app/views/product_schedule_task_collections/show.html.haml](mdc:app/views/product_schedule_task_collections/show.html.haml)に対応するSCSSファイル:
+  - 場所: [app/assets/stylesheets/product_schedule_task_collections/_show.scss](mdc:app/assets/stylesheets/product_schedule_task_collections/_show.scss)
+  - app.css.scssでのインポート: `@use "product_schedule_task_collections/_show" as product_schedule_task_collections_show;`

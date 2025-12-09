@@ -1,0 +1,35 @@
+.container.mx-auto.px-4.py-8
+  .max-w-md.mx-auto
+    .bg-white.shadow-lg.rounded-lg.p-8
+      %h2.text-3xl.font-bold.text-gray-800.mb-6.text-center Edit #{resource_name.to_s.humanize}
+      = form_for(resource, as: resource_name, url: registration_path(resource_name), html: { method: :put, class: "space-y-6" }) do |f|
+        = render "devise/shared/error_messages", resource: resource
+        .field
+          = f.label :email, class: "block text-gray-700 text-sm font-bold mb-2"
+          = f.email_field :email, autofocus: true, autocomplete: "email", class: "shadow appearance-none border border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        - if devise_mapping.confirmable? && resource.pending_reconfirmation?
+          .bg-yellow-100.border.border-yellow-400.text-yellow-700.px-4.py-3.rounded.mb-4
+            Currently waiting confirmation for: #{resource.unconfirmed_email}
+        .field
+          = f.label :password, class: "block text-gray-700 text-sm font-bold mb-2"
+          %i.text-sm.text-gray-500 (leave blank if you don't want to change it)
+          = f.password_field :password, autocomplete: "new-password", class: "shadow appearance-none border border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent mt-2"
+          - if @minimum_password_length
+            %p.text-xs.text-gray-500.mt-1
+              #{@minimum_password_length} characters minimum
+        .field
+          = f.label :password_confirmation, class: "block text-gray-700 text-sm font-bold mb-2"
+          = f.password_field :password_confirmation, autocomplete: "new-password", class: "shadow appearance-none border border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        .field
+          = f.label :current_password, class: "block text-gray-700 text-sm font-bold mb-2"
+          %i.text-sm.text-gray-500 (we need your current password to confirm your changes)
+          = f.password_field :current_password, autocomplete: "current-password", class: "shadow appearance-none border border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent mt-2"
+        .actions
+          = f.submit "Update", class: "w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition duration-200"
+      .mt-8.border-t.pt-6
+        %h3.text-xl.font-bold.text-gray-800.mb-4 Cancel my account
+        .bg-red-50.border.border-red-200.rounded.p-4
+          %p.text-sm.text-gray-700.mb-3 Unhappy?
+          = button_to "Cancel my account", registration_path(resource_name), data: { confirm: "Are you sure?", turbo_confirm: "Are you sure?" }, method: :delete, class: "bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded transition duration-200"
+      .mt-6.text-center
+        = link_to "Back", :back, class: "text-blue-500 hover:text-blue-700"

@@ -1,0 +1,86 @@
+---
+description: 
+globs: *.haml
+alwaysApply: false
+---
+# フォーム・バリデーション規約
+hamlの記載方法。フォームの構造・クラス指定・バリデーション実装に関する規約をまとめています。
+
+## HAML 記法規約
+- 文字列記法:
+    - 通常の文字列: シングルクォート（'）
+    - 変数を含む文字列: ダブルクォート（"）
+- 要素の記述:
+    - data属性やclassは要素と同じ行に記載
+    - turbo: trueやremote: trueは削除しない
+    - style属性を直接記述せず、必ずSCSSファイルにスタイルを定義
+    - 特に要素を非表示にする場合は、`style="display:none"` ではなく `d-none` クラスを使用する
+
+## フォーム要素規約
+- フォーム全体の基本構造:
+  ```haml
+  .pt-3.ml-5.mr-5.event-no-swipe-back
+    = form_with model: model_name, class: 'max_width mx-auto [ファイルパスをハイフンで繋げた名前]-form', html: { data: { remote: true } } do |f|
+      # フォームの内容
+  ```
+  例: `user_work_items/_form.html.haml` の場合は `user-work-items-form`
+- 入力フィールドの基本構造:
+  ```haml
+  .form-group
+    = f.label :field_name, 'ラベル名'
+    .input-group
+      = f.text_field :field_name, class: 'add-input form-control text-center'
+  ```
+- submitボタンの基本構造:
+  ```haml
+  .actions.mt-4.mb-5.pb-5
+    = f.submit model.new_record? ? '登録する' : '更新する', class: 'btn btn-block add-btn mb-0', data: { testid: 'submit' }
+  ```
+- クラス指定:
+    - フォーム全体: `pt-3 ml-5 mr-5 event-no-swipe-back`
+    - フォームグループ: `form-group`
+    - 入力グループ: `input-group`
+    - 入力フィールド: `add-input form-control text-center`
+    - submitボタン: `btn btn-block add-btn mb-0`
+    - submitボタン親要素: `actions mt-4 mb-5 pb-5`
+- 追加のクラスが必要な場合は `text-center` の後ろに追加
+  例: `class: 'add-input form-control text-center ここ以降に追加'`
+
+## フォームバリデーション規約
+- jQuery Validate を使用したバリデーション
+- バリデーションの基本構造:
+  ```coffee
+  # カスタムメソッドの定義（必要な場合）
+  $.validator.addMethod 'methodName', (value, el, param) ->
+    # バリデーションロジック
+
+  # ルール定義
+  rules =
+    'model[field]':
+      required: true
+      # その他のルール
+
+  # エラーメッセージ定義
+  messages =
+    'model[field]':
+      required: '入力必須です'
+      # その他のメッセージ
+
+  # validate の適用
+  $('.form-class').validate
+    rules: rules
+    messages: messages
+    errorClass: 'error_message'
+    errorElement: 'div'
+    errorPlacement: (error, element) ->
+      error.insertAfter element.parent()
+  ```
+- バリデーションの記述場所:
+    - 対応する view ファイルの末尾に `:coffee` ブロックとして記述
+    - カスタムメソッドは必要に応じて定義
+    - ルールとメッセージは明確に分けて記述
+- エラー表示:
+    - エラーメッセージのクラス: `error_message`
+    - エラー要素: `div`
+    - ラジオボタンとチェックボックスは親要素の後ろに表示
+    - その他の要素は入力グループの後ろに表示

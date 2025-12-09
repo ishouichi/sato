@@ -1,0 +1,16 @@
+.container.mx-auto.px-4.py-8
+  .max-w-4xl.mx-auto
+    .bg-white.shadow-lg.rounded-lg.p-8
+      %h1.text-4xl.font-bold.text-gray-800.mb-6.text-center= t("home.index.welcome")
+      - if user_signed_in?
+        .text-center.space-y-4
+          %p.text-lg.text-gray-600
+            = t("home.index.logged_in_as")
+            %strong.text-gray-800.font-semibold= current_user.email
+          = link_to t("home.index.log_out"), destroy_user_session_path, data: { turbo_method: :delete }, class: "inline-block bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded transition duration-200"
+      - else
+        .text-center.space-y-4
+          %p.text-lg.text-gray-600.mb-6= t("home.index.please_sign_up_or_log_in")
+          .flex.justify-center.gap-4
+            = link_to t("home.index.sign_up"), new_user_registration_path, class: "bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded transition duration-200"
+            = link_to t("home.index.log_in"), new_user_session_path, class: "bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-6 rounded transition duration-200"

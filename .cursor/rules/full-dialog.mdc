@@ -1,0 +1,153 @@
+# full-dialog フレームワーク実装ガイド
+
+## 概要
+`full-dialog`は、本プロジェクト独自の全画面ダイアログUIを実現するフレームワークです。Turbo Frame + Stimulus + jQuery/CoffeeScript + SCSS + HAMLを組み合わせて実装されています。
+
+## 基本構造（必須）
+
+すべてのダイアログは必ず以下の3層構造で実装してください：
+
+```haml
+.full-dialog
+  .dialog-add-target
+    .full-dialog-body
+      = render 'shared/header'
+      // ...ダイアログの内容...
+```
+
+## 各レイヤーの役割
+
+- **`.full-dialog`**: 全画面ダイアログの外枠
+  - z-index制御（99999）
+  - 固定配置・サイズ制御
+  - 背景色・表示状態管理
+
+- **`.dialog-add-target`**: 内容差し替え・制御用ラッパー
+  - 動的内容の差し替え領域
+  - 閉じる際の内容クリア処理
+  - tool-mode時の下部固定レイアウト
+
+- **`.full-dialog-body`**: ダイアログ本体
+  - スクロール制御
+  - 多重ダイアログ時の状態管理
+  - UI一貫性担保
+
+## Turboを使用した実装方法
+
+### 1. ダイアログのフレーム定義
+
+```haml
+= turbo_frame_tag 'dialog-id', class: 'full-dialog',
+  data: { controller: 'turbo-dialog',
+          action: 'turbo:frame-render->turbo-dialog#open' }
+```
+
+### 2. リンクからダイアログを開く
+
+```haml
+= link_to path, data: { turbo: true, turbo_frame: 'dialog-id' }
+```
+
+### 3. 呼び出される側のView構造
+
+```haml
+= turbo_frame_tag 'dialog-id' do
+  .dialog-add-target
+    .full-dialog-body
+      = render 'shared/header'
+      // ダイアログの内容
+```
+
+## JavaScript API
+
+- **開く**:
+```javascript
+dialog.open('#dialog-id')
+```
+
+- **閉じる**:
+```javascript
+dialog.close()
+```
+
+- **特定ダイアログまで閉じる**:
+```javascript
+dialog.closeTo_name_start_with('prefix')
+```
+
+- **全て閉じる**:
+```javascript
+dialog.closeAll()
+```
+
+- **オプション設定**:
+```javascript
+dialog.setOption($dialogArea, {
+  reload: true,         // 閉じた後にページをリロード
+  skip_animation: true  // アニメーションなしで閉じる
+})
+```
+
+## 特殊モード・バリエーション
+
+### tool-mode（下部固定表示）
+
+半透明背景・下部固定コンテンツのモードです。
+
+```haml
+.full-dialog.tool-mode
+  .tool-splash-area
+  .dialog-add-target
+    .full-dialog-body
+      = render 'shared/header'
+      // ダイアログの内容
+```
+
+### スワイプで閉じる動作を無効化
+
+```haml
+.full-dialog-body.event-no-swipe-back
+```
+
+## 注意点・制約
+
+- 3層構造（`.full-dialog` > `.dialog-add-target` > `.full-dialog-body`）は必須です
+- `shared/header`の読み込みは必須です（閉じるボタン等のダイアログ制御に必要）
+- ダイアログIDは一意である必要があります
+- 多重ダイアログ対応のため、正しい構造を厳守してください
+- tool-mode等の特殊モードは目的に応じて使い分けてください
+
+## 実装例
+
+### 基本的な全画面ダイアログ
+
+```haml
+= turbo_frame_tag 'user-form-dialog', class: 'full-dialog', data: { controller: 'turbo-dialog', action: 'turbo:frame-render->turbo-dialog#open' }
+```
+
+```haml
+= link_to '新規登録', new_user_path, data: { turbo: true, turbo_frame: 'user-form-dialog' }
+```
+
+```haml
+# new.html.haml
+= turbo_frame_tag 'user-form-dialog' do
+  .dialog-add-target
+    .full-dialog-body
+      = render 'shared/header'
+      = render 'form'
+```
+
+### 農薬選択ダイアログ（tool-mode）
+
+```haml
+= turbo_frame_tag 'chemical-select-dialog-area', class: 'full-dialog tool-mode', data: { controller: 'turbo-dialog', action: 'turbo:frame-render->turbo-dialog#open' }
+```
+
+```haml
+= link_to '農薬を追加', chemical_select_dialog_path, data: { turbo: true, turbo_frame: 'chemical-select-dialog-area' }
+```
+
+---
+
+このルールに従うことで、画面遷移なしの全画面ダイアログUIを一貫性を持って実装できます。

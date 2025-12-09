@@ -1,0 +1,21 @@
+---
+description: 
+globs: *.rb
+alwaysApply: false
+---
+# ActiveRecord・モデル規約
+ActiveRecordの日本語ソートやモデルに関する実装規約をまとめています。
+
+## ActiveRecord 規約
+- 日本語文字列のソート:
+    - カナ/漢字フィールドのソートには必ず COLLATE "C" を使用
+    - 基本構造:
+      ```ruby
+      Model.order(Arel.sql('field_name COLLATE "C" ASC'))
+      ```
+- 注意事項:
+    - 通常の order メソッドでは日本語の正しい順序が保証されない
+
+# データベースの変更
+- マイグレーションファイルを新規作成する場合は、必ず `rails generate migration` コマンドを使用すること。
+  - 例: `bin/rails generate migration AddTaskTypeToScheduleTasks task_type:string:index` 
