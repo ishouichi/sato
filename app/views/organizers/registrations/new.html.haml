@@ -1,0 +1,33 @@
+.container.mx-auto.px-4.py-8
+  .max-w-md.mx-auto
+    .bg-white.shadow-lg.rounded-lg.p-8
+      %h2.text-3xl.font-bold.text-gray-800.mb-6.text-center= t("devise.organizers.registrations.new.sign_up", default: "主催者として新規登録")
+      = form_for(resource, as: resource_name, url: registration_path(resource_name), html: { class: "space-y-6" }) do |f|
+        = render "organizers/shared/error_messages", resource: resource
+        .field
+          = f.label :email, t("activerecord.attributes.organizer.email", default: "メールアドレス"), class: "block text-gray-700 text-sm font-bold mb-2"
+          %span.text-red-500 *
+          = f.email_field :email, autofocus: true, autocomplete: "email", class: "shadow appearance-none border border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        .field
+          = f.label :password, t("activerecord.attributes.organizer.password", default: "パスワード"), class: "block text-gray-700 text-sm font-bold mb-2"
+          %span.text-red-500 *
+          - if @minimum_password_length
+            %p.text-xs.text-gray-500.mb-1
+              = t("devise.organizers.registrations.new.minimum_password_length", count: @minimum_password_length, default: "(#{@minimum_password_length}文字以上)")
+          = f.password_field :password, autocomplete: "new-password", class: "shadow appearance-none border border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        .field
+          = f.label :password_confirmation, t("activerecord.attributes.organizer.password_confirmation", default: "パスワード（確認）"), class: "block text-gray-700 text-sm font-bold mb-2"
+          %span.text-red-500 *
+          = f.password_field :password_confirmation, autocomplete: "new-password", class: "shadow appearance-none border border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        .field
+          = f.label :name, "担当者名", class: "block text-gray-700 text-sm font-bold mb-2"
+          = f.text_field :name, autocomplete: "name", class: "shadow appearance-none border border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        .field.flex.items-center
+          = f.check_box :terms_accepted, class: "mr-2"
+          = f.label :terms_accepted, class: "text-gray-700 text-sm" do
+            利用規約に同意する
+            %span.text-red-500 *
+        .actions
+          = f.submit t("devise.organizers.registrations.new.sign_up", default: "登録する"), class: "w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition duration-200"
+      .mt-6.text-center
+        = render "organizers/shared/links"

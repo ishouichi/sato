@@ -1,8 +1,100 @@
-# Omakase Ruby styling for Rails
-inherit_gem: { rubocop-rails-omakase: rubocop.yml }
+inherit_from: .rubocop_todo.yml
 
-# Overwrite or add rules to create your own house style
-#
-# # Use `[a, [b, c]]` not `[ a, [ b, c ] ]`
-# Layout/SpaceInsideArrayLiteralBrackets:
-#   Enabled: false
+plugins:
+  - rubocop-performance
+  - rubocop-rails
+  - rubocop-rspec
+  - rubocop-rspec_rails
+  - rubocop-capybara
+  - rubocop-factory_bot
+
+AllCops:
+  NewCops: enable
+  Include:
+    - '**/*.rb'
+    - '**/*.gemfile'
+    - '**/*.rake'
+    - 'Gemfile'
+    - 'Rakefile'
+  Exclude:
+    - bin/*
+    - db/schema.rb
+    - vendor/bundle/**/*
+    - db/migrate/*
+    - db/data/*
+    - db/data_schema.rb
+    - tmp/**/*
+
+RSpec/ExampleLength:
+  Enabled: false
+RSpec/ContextWording:
+  Enabled: false
+RSpec/IndexedLet:
+  Enabled: false
+RSpec/MultipleExpectations:
+  Enabled: false
+RSpec/AnyInstance:
+  Exclude:
+    - 'spec/system/**/*'
+# NOTE: 恣意的なコードの行数制限を入れることで、可読性や保守性が下がってしまうケースが多いため無効にした
+RSpec/MultipleMemoizedHelpers:
+  Enabled: false
+# NOTE: 条件分岐が多いメソッドなどでは、ネストが深くなることがあるため無効にした
+RSpec/NestedGroups:
+  Enabled: false
+
+# NOTE: Playwrightでは have_css が NotImplementedError を発生させるため、have_selector の使用を許可する
+Capybara/RSpec/HaveSelector:
+  Enabled: false
+
+# NOTE: Metrics 系の Cop が有効化されていることで、返ってコードの可読性や保守性が下がってしまうケースが多いため無効にした
+Metrics/BlockLength:
+  Enabled: false
+Metrics/ClassLength:
+  Enabled: false
+Metrics/MethodLength:
+  Enabled: false
+Metrics/ModuleLength:
+  Enabled: false
+Metrics/CollectionLiteralLength:
+  Enabled: false
+Metrics/AbcSize:
+  Enabled: false
+Metrics/PerceivedComplexity:
+  Enabled: false
+Metrics/CyclomaticComplexity:
+  Enabled: false
+Metrics/ParameterLists:
+  Enabled: false
+Metrics/BlockNesting:
+  Enabled: false
+
+# NOTE: カラムがスネークケースの番号で命名されていることが多く、そのようなカラムのテストデータ作成時に検知されてしまうため無効にした
+Naming/VariableNumber:
+  Enabled: false
+
+# NOTE: private はインラインで定義した方が視線の移動が少なくて読みやすいため
+Style/AccessModifierDeclarations:
+  EnforcedStyle: inline
+# NOTE: クラスメソッドは self.xxx で定義した方が視線の移動が少なくて読みやすいため
+Style/ClassMethodsDefinitions:
+  Enabled: true
+Style/FrozenStringLiteralComment:
+  Enabled: false
+Style/Documentation:
+  Enabled: false
+Style/RedundantSelf:
+  Enabled: false
+Style/ClassAndModuleChildren:
+  Enabled: false
+Style/IfUnlessModifier:
+  Enabled: false
+Style/EmptyMethod:
+  Enabled: false
+
+Style/RedundantAssignment:
+  Enabled: false
+
+# NOTE: Agrihub ではテーブル/Model 名など冗長な命名が多いためデフォルトの120文字に収めるのが難しい。そのため 200 文字に設定した。
+Layout/LineLength:
+  Max: 200

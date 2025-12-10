@@ -1,0 +1,24 @@
+inherits_from:
+  - .rubocop.yml
+  - .haml-lint_todo.yml
+
+skip_frontmatter: true
+
+exclude:
+  - 'vendor/**/*'
+  - 'node_modules/**/*'
+
+linters:
+  ImplicitDiv:
+    enabled: false
+    severity: error
+
+  # NOTE: コードの行数を制限すると、不必要にファイルが分割されて可読性や保守性が悪くなるため無効にした
+  LineLength:
+    enabled: false
+  ViewLength:
+    enabled: false
+
+  # NOTE: プロジェクト方針により、サイレントスクリプトの連続チェックは不要
+  ConsecutiveSilentScripts:
+    enabled: false

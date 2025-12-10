@@ -1,0 +1,66 @@
+.min-h-screen.bg-white.py-12.px-4.sm:px-6.lg:px-8
+  .max-w-3xl.mx-auto
+    .mb-10
+      %h1.text-3xl.font-bold.text-gray-900.mb-4 プロフィール設定
+      %p.text-gray-600
+        主催者（あなた）のプロフィール情報を管理します。
+        %br
+        ログインメールアドレスの変更は、アカウント設定から行えます。
+
+    = form_with model: [:organizers, @organizer], url: organizers_profile_path, method: :patch, local: true, html: { class: "space-y-12" } do |f|
+      = render "organizers/shared/error_messages", resource: @organizer
+
+      / 基本情報セクション
+      %section
+        .border-b.border-gray-200.pb-4.mb-6
+          %h2.text-xl.font-semibold.text-gray-900 基本情報
+          %p.mt-1.text-sm.text-gray-500 イベント運営者の情報を入力してください。
+
+        .grid.grid-cols-1.gap-y-6.gap-x-4.sm:grid-cols-6
+          .col-span-6
+            = f.label :name, class: "block text-sm font-medium text-gray-700" do
+              担当者名
+              %span.ml-2.inline-flex.items-center.px-2.py-0.5.rounded.text-xs.font-medium.bg-red-100.text-red-800 必須
+            .mt-1
+              = f.text_field :name, placeholder: "例: 佐藤 太郎", class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-3 px-4"
+
+      / 連絡先情報セクション
+      %section
+        .border-b.border-gray-200.pb-4.mb-6
+          %h2.text-xl.font-semibold.text-gray-900 連絡先情報
+          %p.mt-1.text-sm.text-gray-500 参加者や他の主催者からの連絡に使用される情報です。
+
+        .grid.grid-cols-1.gap-y-6.gap-x-4.sm:grid-cols-6
+          .col-span-6.sm:col-span-3
+            = f.label :contact_email, class: "block text-sm font-medium text-gray-700" do
+              連絡用メールアドレス
+            .mt-1
+              = f.email_field :contact_email, placeholder: "contact@example.com", class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-3 px-4"
+            %p.mt-2.text-sm.text-gray-500 公開される場合があります。
+
+          .col-span-6.sm:col-span-3
+            = f.label :phone, class: "block text-sm font-medium text-gray-700" do
+              電話番号
+            .mt-1
+              = f.telephone_field :phone, placeholder: "090-1234-5678", class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-3 px-4"
+            %p.mt-2.text-sm.text-gray-500 緊急時の連絡用として使用します。
+
+      .pt-6
+        .flex.justify-end
+          = f.submit "保存する", class: "inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-3 px-8 text-base font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors duration-200"
+
+    / 組織設定へのリンク
+    .mt-12.border-t.border-gray-200.pt-6
+      .flex.justify-between.items-center
+        %div
+          %h3.text-lg.font-medium.text-gray-900 組織設定
+          %p.text-sm.text-gray-500 所属する組織の情報を確認・編集します。
+        = link_to "組織情報を編集", organizers_organization_edit_path, class: "inline-flex justify-center rounded-md border border-gray-300 bg-white py-2 px-4 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+
+    / ログアウトセクション
+    .mt-6.border-t.border-gray-200.pt-6
+      .flex.justify-between.items-center
+        %div
+          %h3.text-lg.font-medium.text-gray-900 ログアウト
+          %p.text-sm.text-gray-500 アカウントからログアウトします。
+        = button_to "ログアウト", destroy_organizer_session_path, method: :delete, class: "inline-flex justify-center rounded-md border border-gray-300 bg-white py-2 px-4 text-sm font-medium text-red-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"

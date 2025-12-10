@@ -51,6 +51,34 @@ ja:
       send_paranoid_instructions: "アカウントが存在する場合、ロック解除方法が記載されたメールが送信されます。"
       unlocked: "アカウントのロックを解除しました。ログインして続行してください。"
 
+    organizers:
+      sessions:
+        signed_in: "主催者としてログインしました。"
+        signed_out: "ログアウトしました。"
+        already_signed_out: "ログアウトしました。"
+        new:
+          sign_in: "主催者ログイン"
+      registrations:
+        signed_up: "主催者アカウントの登録が完了しました。"
+        signed_up_but_inactive: "主催者アカウント登録は完了しましたが、有効化されていないためログインできません。"
+        signed_up_but_locked: "主催者アカウント登録は完了しましたが、アカウントがロックされているためログインできません。"
+        signed_up_but_unconfirmed: "確認用のメールを送信しました。メール内のリンクからアカウントを有効化してください。"
+        update_needs_confirmation: "主催者アカウント情報を更新しました。新しいメールアドレス宛に確認メールを送信しました。"
+        updated: "主催者アカウント情報を更新しました。"
+        updated_but_not_signed_in: "主催者アカウント情報を更新しました。パスワードを変更したため、再度ログインしてください。"
+        destroyed: "主催者アカウントを削除しました。またのご利用をお待ちしています。"
+        new:
+          sign_up: "主催者として新規登録"
+          minimum_password_length: "パスワードは%{count}文字以上で入力してください"
+      passwords:
+        send_instructions: "数分以内にパスワード再設定の案内メールが送信されます。"
+        send_paranoid_instructions: "メールアドレスが登録済みの場合、パスワード再設定の案内メールが送信されます。"
+        updated: "パスワードが正常に変更されました。ログイン済みです。"
+        updated_not_active: "パスワードが正常に変更されました。"
+        new:
+          title: "パスワードをお忘れですか？"
+          send_instructions: "パスワード再設定用のメールを送信する"
+
     shared:
       links:
         log_in: "ログイン"

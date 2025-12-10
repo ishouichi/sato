@@ -1,5 +1,36 @@
 Rails.application.routes.draw do
   devise_for :users
+
+  # 主催者用認証
+  devise_for :organizers,
+             path: 'organizers',
+             controllers: {
+               sessions: 'organizers/sessions',
+               registrations: 'organizers/registrations',
+               passwords: 'organizers/passwords'
+             }
+
+  # 主催者向け管理画面（認証必須）
+  namespace :organizers do
+    authenticate :organizer do
+      root 'dashboard#index', as: :dashboard
+      get 'dashboard', to: 'dashboard#index'
+
+      # 組織設定
+      get 'organization/setup', to: 'organizations#setup'
+      get 'organization/edit', to: 'organizations#edit'
+      patch 'organization', to: 'organizations#update'
+      post 'organization', to: 'organizations#create'
+
+      # プロフィール設定
+      get 'profile', to: 'profiles#edit'
+      patch 'profile', to: 'profiles#update'
+
+      # 祭り管理
+      resources :festivals, only: %i[index new create edit update]
+    end
+  end
+
   get "home/index"
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 

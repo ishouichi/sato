@@ -1,0 +1,107 @@
+.min-h-screen.bg-white.py-12.px-4.sm:px-6.lg:px-8
+  .max-w-3xl.mx-auto
+    .mb-10
+      %h1.text-3xl.font-bold.text-gray-900.mb-4 組織プロフィールの作成
+      %p.text-gray-600
+        この組織は、あなたが代表者（primary_owner）として作成されます。
+        %br
+        信頼性の高い情報を入力することで、ユーザーに安心感を与えましょう。
+
+    = form_with model: [:organizers, @organization], url: organizers_organization_path, local: true, html: { class: "space-y-12" } do |f|
+      = render "organizers/shared/error_messages", resource: @organization
+
+      / 基本情報セクション
+      %section
+        .border-b.border-gray-200.pb-4.mb-6
+          %h2.text-xl.font-semibold.text-gray-900 基本情報
+          %p.mt-1.text-sm.text-gray-500 組織の基本的な情報を入力してください。
+
+        .grid.grid-cols-1.gap-y-6.gap-x-4.sm:grid-cols-6
+          .col-span-6
+            = f.label :name, class: "block text-sm font-medium text-gray-700" do
+              組織名
+              %span.ml-2.inline-flex.items-center.px-2.py-0.5.rounded.text-xs.font-medium.bg-red-100.text-red-800 必須
+            .mt-1
+              = f.text_field :name, placeholder: "例: 株式会社サトウ企画", class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-3 px-4"
+
+      / 所在地セクション
+      %section
+        .border-b.border-gray-200.pb-4.mb-6
+          %h2.text-xl.font-semibold.text-gray-900 所在地
+          %p.mt-1.text-sm.text-gray-500 イベントを開催する拠点の住所を入力してください。
+
+        .grid.grid-cols-1.gap-y-6.gap-x-4.sm:grid-cols-6
+          .col-span-6.sm:col-span-2
+            = f.label :prefecture, class: "block text-sm font-medium text-gray-700" do
+              都道府県
+              %span.ml-2.inline-flex.items-center.px-2.py-0.5.rounded.text-xs.font-medium.bg-red-100.text-red-800 必須
+            .mt-1
+              = f.select :prefecture, options_for_select(Organization::PREFECTURES.map { |pref| [pref, pref] }), { prompt: "選択" }, { class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-3 px-4" }
+
+          .col-span-6.sm:col-span-4
+            = f.label :city, class: "block text-sm font-medium text-gray-700" do
+              市区町村
+              %span.ml-2.inline-flex.items-center.px-2.py-0.5.rounded.text-xs.font-medium.bg-red-100.text-red-800 必須
+            .mt-1
+              = f.text_field :city, placeholder: "例: 渋谷区", class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-3 px-4"
+
+          .col-span-6
+            = f.label :address, class: "block text-sm font-medium text-gray-700" do
+              番地・ビル名など
+            .mt-1
+              = f.text_field :address, placeholder: "例: 神南1-1-1 スクエアビル 3F", class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-3 px-4"
+
+      / 連絡先・Webセクション
+      %section
+        .border-b.border-gray-200.pb-4.mb-6
+          %h2.text-xl.font-semibold.text-gray-900 連絡先・Web情報
+          %p.mt-1.text-sm.text-gray-500 ユーザーからの問い合わせ先や、公式サイトの情報を入力してください。
+
+        .grid.grid-cols-1.gap-y-6.gap-x-4.sm:grid-cols-6
+          .col-span-6.sm:col-span-3
+            = f.label :contact_email, class: "block text-sm font-medium text-gray-700" do
+              連絡用メールアドレス
+              %span.ml-2.inline-flex.items-center.px-2.py-0.5.rounded.text-xs.font-medium.bg-red-100.text-red-800 必須
+            .mt-1
+              = f.email_field :contact_email, placeholder: "contact@example.com", class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-3 px-4"
+
+          .col-span-6.sm:col-span-3
+            = f.label :phone, class: "block text-sm font-medium text-gray-700" do
+              電話番号
+              %span.ml-2.inline-flex.items-center.px-2.py-0.5.rounded.text-xs.font-medium.bg-red-100.text-red-800 必須
+            .mt-1
+              = f.telephone_field :phone, placeholder: "03-1234-5678", class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-3 px-4"
+
+          .col-span-6
+            = f.label :website_url, class: "block text-sm font-medium text-gray-700" do
+              WebサイトURL
+            .mt-1.relative.rounded-md.shadow-sm
+              .pointer-events-none.absolute.inset-y-0.left-0.flex.items-center.pl-3
+                %span.text-gray-500.sm:text-sm https://
+              = f.url_field :website_url, placeholder: "www.example.com", class: "block w-full rounded-md border-gray-300 pl-16 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-3 px-4"
+
+          .col-span-6
+            = f.label :sns_url, class: "block text-sm font-medium text-gray-700" do
+              SNS URL
+            .mt-1.relative.rounded-md.shadow-sm
+              .pointer-events-none.absolute.inset-y-0.left-0.flex.items-center.pl-3
+                %span.text-gray-500.sm:text-sm https://
+              = f.url_field :sns_url, placeholder: "twitter.com/example", class: "block w-full rounded-md border-gray-300 pl-16 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-3 px-4"
+
+      / 紹介文セクション
+      %section
+        .border-b.border-gray-200.pb-4.mb-6
+          %h2.text-xl.font-semibold.text-gray-900 組織紹介
+          %p.mt-1.text-sm.text-gray-500 どのような活動をしている組織か、わかりやすく記述してください。
+
+        .grid.grid-cols-1.gap-y-6
+          .col-span-1
+            = f.label :description, class: "block text-sm font-medium text-gray-700" do
+              紹介文
+            .mt-1
+              = f.text_area :description, rows: 5, placeholder: "私たちの組織は、地域社会の活性化を目指して...", class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-3 px-4"
+            %p.mt-2.text-sm.text-gray-500 検索結果などに表示されます。
+
+      .pt-6
+        .flex.justify-end
+          = f.submit "組織を作成して始める", class: "w-full sm:w-auto inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-3 px-8 text-base font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors duration-200"

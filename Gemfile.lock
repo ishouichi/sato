@@ -107,6 +107,9 @@ GEM
       warden (~> 1.2.3)
     diff-lcs (1.6.2)
     dotenv (3.2.0)
+    dotenv-rails (3.2.0)
+      dotenv (= 3.2.0)
+      railties (>= 6.1)
     drb (2.2.3)
     ed25519 (1.4.0)
     erb (6.0.0)
@@ -473,6 +476,7 @@ DEPENDENCIES
   dartsass-rails
   debug
   devise
+  dotenv-rails
   haml-rails
   haml_lint
   image_processing (~> 1.2)
