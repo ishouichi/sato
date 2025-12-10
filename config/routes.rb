@@ -27,7 +27,7 @@ Rails.application.routes.draw do
       patch 'profile', to: 'profiles#update'
 
       # 祭り管理
-      resources :festivals, only: %i[index new create edit update]
+      resources :festivals, only: %i[index new create edit update destroy]
     end
   end
 

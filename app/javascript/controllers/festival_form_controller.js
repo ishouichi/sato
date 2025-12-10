@@ -5,7 +5,9 @@ export default class extends Controller {
     "step", "nextButton", "backButton", "submitButton",
     "stepTitle", "stepDesc", "progressBar",
     "date", "startTime", "endTime", "startAt", "endAt",
-    "description", "beginner", "hanten", "party"
+    "description", "beginner", "hanten", "party",
+    "imageInput", "imagePreview", "imagePicker", "imagePlaceholder",
+    "existingImageBlobId", "existingImageList", "existingImageItem"
   ]
 
   connect() {
@@ -15,6 +17,24 @@ export default class extends Controller {
 
     // 初期値の同期（編集時など）
     this.updateDateTime()
+
+    // 既存画像の初期プレビュー設定
+    if (this.hasImagePreviewTarget && this.imagePreviewTarget.src && this.imagePreviewTarget.src !== window.location.href) {
+      this.imagePlaceholderTarget.classList.add("hidden")
+      this.imagePreviewTarget.classList.remove("hidden")
+    }
+
+    // 既存画像選択の初期ハイライト
+    if (this.hasExistingImageBlobIdTarget && this.hasExistingImageItemTarget) {
+      const currentId = this.existingImageBlobIdTarget.value
+      if (currentId) {
+        this.existingImageItemTargets.forEach((el) => {
+          if (el.dataset.blobId === currentId) {
+            el.classList.add("ring-2", "ring-indigo-500")
+          }
+        })
+      }
+    }
   }
 
   next(e) {
@@ -103,4 +123,121 @@ export default class extends Controller {
   // 募集条件のトグル変更時にdescriptionに追記するなどのロジックを入れたいが、
   // 今回はUI再現優先で、サーバー側で保存時に処理するか、あるいは単純にチェックボックス値を送る想定にする。
   // ここでは特になにもしない。
+
+  openImagePicker(event) {
+    event.preventDefault()
+    if (this.hasImageInputTarget) {
+      this.imageInputTarget.click()
+    }
+  }
+
+  previewAndCompressImage(event) {
+    const file = event.target.files[0]
+    if (!file) return
+
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      const img = new Image()
+      img.onload = () => {
+        // 最大サイズを1600pxに設定
+        const maxSize = 1600
+        let width = img.width
+        let height = img.height
+
+        if (width > height) {
+          if (width > maxSize) {
+            height = (height * maxSize) / width
+            width = maxSize
+          }
+        } else {
+          if (height > maxSize) {
+            width = (width * maxSize) / height
+            height = maxSize
+          }
+        }
+
+        // Canvasでリサイズ・圧縮
+        const canvas = document.createElement("canvas")
+        canvas.width = width
+        canvas.height = height
+        const ctx = canvas.getContext("2d")
+        ctx.drawImage(img, 0, 0, width, height)
+
+        // JPEG形式で圧縮（quality: 0.8）
+        canvas.toBlob(
+          (blob) => {
+            if (!blob) return
+
+            // 圧縮済みファイルをFileオブジェクトとして作成
+            const compressedFile = new File([blob], file.name, {
+              type: "image/jpeg",
+              lastModified: Date.now()
+            })
+
+            // DataTransferを使ってfile inputのfilesを差し替え
+            const dataTransfer = new DataTransfer()
+            dataTransfer.items.add(compressedFile)
+            this.imageInputTarget.files = dataTransfer.files
+
+            // 既存画像選択をリセット
+            if (this.hasExistingImageBlobIdTarget) {
+              this.existingImageBlobIdTarget.value = ""
+            }
+            if (this.hasExistingImageItemTarget) {
+              this.existingImageItemTargets.forEach((el) => {
+                el.classList.remove("ring-2", "ring-indigo-500")
+              })
+            }
+
+            // プレビュー表示
+            const previewUrl = URL.createObjectURL(compressedFile)
+            this.imagePreviewTarget.src = previewUrl
+            this.imagePreviewTarget.classList.remove("hidden")
+            if (this.hasImagePlaceholderTarget) {
+              this.imagePlaceholderTarget.classList.add("hidden")
+            }
+          },
+          "image/jpeg",
+          0.8
+        )
+      }
+      img.src = e.target.result
+    }
+    reader.readAsDataURL(file)
+  }
+
+  selectExistingImage(event) {
+    event.preventDefault()
+    const button = event.currentTarget
+    const blobId = button.dataset.blobId
+    if (!blobId) return
+
+    // hiddenに選択したblob idをセット
+    if (this.hasExistingImageBlobIdTarget) {
+      this.existingImageBlobIdTarget.value = blobId
+    }
+
+    // ファイル入力はリセット（既存画像を優先）
+    if (this.hasImageInputTarget) {
+      this.imageInputTarget.value = ""
+    }
+
+    // サムネイルのハイライト更新
+    if (this.hasExistingImageItemTarget) {
+      this.existingImageItemTargets.forEach((el) => {
+        el.classList.remove("ring-2", "ring-indigo-500")
+      })
+    }
+    button.classList.add("ring-2", "ring-indigo-500")
+
+    // プレビューを既存画像に切り替え
+    const img = button.querySelector("img")
+    if (img && this.hasImagePreviewTarget) {
+      this.imagePreviewTarget.src = img.src
+      this.imagePreviewTarget.classList.remove("hidden")
+    }
+    if (this.hasImagePlaceholderTarget) {
+      this.imagePlaceholderTarget.classList.add("hidden")
+    }
+  }
 }

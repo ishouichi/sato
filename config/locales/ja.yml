@@ -51,6 +51,16 @@ ja:
       sign_up: "新規登録"
       log_in: "ログイン"
 
+  date:
+    abbr_day_names:
+      - 日
+      - 月
+      - 火
+      - 水
+      - 木
+      - 金
+      - 土
+
   errors:
     messages:
       not_saved:

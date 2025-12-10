@@ -239,4 +239,61 @@ RSpec.describe Festival, type: :model do
       expect(festival.organization).to eq organization
     end
   end
+
+  describe 'image attachment' do
+    let(:festival) do
+      Festival.create!(
+        organization: organization,
+        name: 'テスト祭り',
+        start_at: 1.week.from_now,
+        prefecture: '東京都',
+        city: '渋谷区',
+        meeting_place_name: 'テスト神社',
+        capacity: 50,
+        published: false
+      )
+    end
+
+    it 'can attach an image' do
+      image_file = Rack::Test::UploadedFile.new(
+        Rails.root.join('spec', 'fixtures', 'files', 'test_image.jpg'),
+        'image/jpeg'
+      )
+      festival.image.attach(image_file)
+      expect(festival.image).to be_attached
+    end
+
+    it 'sets image blob category to festival and organization when created with image' do
+      image_file = Rack::Test::UploadedFile.new(
+        Rails.root.join('spec', 'fixtures', 'files', 'test_image.jpg'),
+        'image/jpeg'
+      )
+
+      created = Festival.create!(
+        organization: organization,
+        name: '画像付き祭り',
+        start_at: 1.week.from_now,
+        prefecture: '東京都',
+        city: '渋谷区',
+        meeting_place_name: 'テスト神社',
+        capacity: 50,
+        published: false,
+        image: image_file
+      )
+
+      expect(created.image).to be_attached
+      expect(created.image.blob.category).to eq 'festival'
+      expect(created.image.blob.organization_id).to eq organization.id
+    end
+
+    it 'validates image content type' do
+      invalid_file = Rack::Test::UploadedFile.new(
+        Rails.root.join('spec', 'fixtures', 'files', 'test.txt'),
+        'text/plain'
+      )
+      festival.image.attach(invalid_file)
+      expect(festival).to be_invalid
+      expect(festival.errors[:image]).to be_present
+    end
+  end
 end

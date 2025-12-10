@@ -23,28 +23,35 @@
     - if @festivals.any?
       .space-y-4
         - @festivals.each do |festival|
-          = link_to edit_organizers_festival_path(festival), class: "block bg-white border border-indigo-100 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all active:scale-[0.98]" do
-            .flex.justify-between.items-start.mb-3
-              %div
-                .flex.items-center.gap-2.mb-1
-                  %i.fa-solid.fa-location-dot.text-gray-400.text-xs
-                  %span.text-xs.text-gray-500= "#{festival.prefecture} #{festival.city}"
-                %h3.font-bold.text-lg.text-gray-800.leading-tight= festival.name
+          .bg-white.border.border-indigo-100.rounded-2xl.shadow-sm.hover:shadow-md.transition-all
+            .p-6
+              .flex.justify-between.items-start.mb-3
+                = link_to edit_organizers_festival_path(festival), class: "flex-grow group" do
+                  .flex.items-center.gap-2.mb-1
+                    %i.fa-solid.fa-location-dot.text-gray-400.text-xs
+                    %span.text-xs.text-gray-500= "#{festival.prefecture} #{festival.city}"
+                  %h3.font-bold.text-lg.text-gray-800.leading-tight.group-hover:text-indigo-600.transition-colors= festival.name
 
-              - if festival.published?
-                %span.bg-green-100.text-green-800.text-xs.font-bold.px-2.py-1.rounded 募集中
-              - else
-                %span.bg-gray-100.text-gray-600.text-xs.font-bold.px-2.py-1.rounded 下書き
+                .flex.flex-col.items-end.gap-3.ml-4
+                  - if festival.published?
+                    %span.bg-green-100.text-green-800.text-xs.font-bold.px-2.py-1.rounded 募集中
+                  - else
+                    %span.bg-gray-100.text-gray-600.text-xs.font-bold.px-2.py-1.rounded 下書き
 
-            .flex.items-center.gap-4.text-sm.text-gray-600
-              .flex.items-center.gap-1.bg-gray-50.px-2.py-1.rounded
-                %i.fa-regular.fa-calendar.text-indigo-400
-                %span.font-mono= festival.start_at.strftime('%m/%d')
-                %span.text-xs (#{I18n.l(festival.start_at, format: '%a')})
+                  = button_to organizers_festival_path(festival), method: :delete, form: { data: { turbo_confirm: "#{festival.name}を削除してもよろしいですか？" } }, class: "text-gray-400 hover:text-red-500 transition-colors text-xs flex items-center gap-1" do
+                    %i.fa-solid.fa-trash
+                    削除
 
-              .flex.items-center.gap-1
-                %i.fa-solid.fa-users.text-gray-400
-                %span 募集中: #{festival.capacity}人
+              = link_to edit_organizers_festival_path(festival), class: "block mt-2 group" do
+                .flex.items-center.gap-4.text-sm.text-gray-600
+                  .flex.items-center.gap-1.bg-gray-50.px-2.py-1.rounded
+                    %i.fa-regular.fa-calendar.text-indigo-400
+                    %span.font-mono= festival.start_at.strftime('%m/%d')
+                    %span.text-xs (#{I18n.l(festival.start_at, format: '%a')})
+
+                  .flex.items-center.gap-1
+                    %i.fa-solid.fa-users.text-gray-400
+                    %span 募集中: #{festival.capacity}人
 
       -# 追加登録ボタン（リストがある場合）
       .mt-6
