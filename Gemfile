@@ -65,6 +65,14 @@ group :development, :test do
   # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
   gem "rubocop-rails-omakase", require: false
 
+  # RuboCop plugins used from .rubocop.yml
+  gem "rubocop-performance", require: false
+  gem "rubocop-rails", require: false
+  gem "rubocop-rspec", require: false
+  gem "rubocop-rspec_rails", require: false
+  gem "rubocop-capybara", require: false
+  gem "rubocop-factory_bot", require: false
+
   # RSpec for testing [https://rspec.info/]
   gem "rspec-rails"
 
