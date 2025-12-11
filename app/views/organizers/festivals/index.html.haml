@@ -42,14 +42,14 @@
                     %i.fa-solid.fa-trash
                     削除
 
-              = link_to edit_organizers_festival_path(festival), class: "block mt-2 group" do
+              .mt-2
                 .flex.items-center.gap-4.text-sm.text-gray-600
-                  .flex.items-center.gap-1.bg-gray-50.px-2.py-1.rounded
+                  = link_to edit_organizers_festival_path(festival), class: "flex items-center gap-1 bg-gray-50 px-2 py-1 rounded hover:text-indigo-600 transition-colors" do
                     %i.fa-regular.fa-calendar.text-indigo-400
                     %span.font-mono= festival.start_at.strftime('%m/%d')
                     %span.text-xs (#{I18n.l(festival.start_at, format: '%a')})
 
-                  .flex.items-center.gap-1
+                  = link_to organizers_festival_participants_path(festival), class: "flex items-center gap-1 ml-auto text-gray-600 hover:text-indigo-600 transition-colors" do
                     %i.fa-solid.fa-users.text-gray-400
                     %span 募集中: #{festival.capacity}人
 

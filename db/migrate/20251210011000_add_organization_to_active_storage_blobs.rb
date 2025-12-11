@@ -6,3 +6,6 @@ class AddOrganizationToActiveStorageBlobs < ActiveRecord::Migration[8.1]
     add_index :active_storage_blobs, %i[category organization_id]
   end
 end
+
+
+

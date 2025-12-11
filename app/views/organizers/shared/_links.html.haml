@@ -13,3 +13,6 @@
     - resource_class.omniauth_providers.each do |provider|
       = button_to t("devise.shared.links.omniauth", provider: OmniAuth::Utils.camelize(provider), default: "Sign in with #{OmniAuth::Utils.camelize(provider)}"), omniauth_authorize_path(resource_name, provider), data: { turbo: false }, class: "text-blue-500 hover:text-blue-700"
 
+
+
+

@@ -74,3 +74,6 @@ export class DevAppIam extends Construct {
     this.user.attachInlinePolicy(s3Policy);
   }
 }
+
+
+

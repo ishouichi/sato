@@ -21,3 +21,6 @@ class Organizers::ProfilesController < ApplicationController
   end
 end
 
+
+
+

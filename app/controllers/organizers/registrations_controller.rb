@@ -41,3 +41,6 @@ class Organizers::RegistrationsController < Devise::RegistrationsController
   end
 end
 
+
+
+

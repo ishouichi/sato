@@ -15,3 +15,6 @@ class Organizers::DashboardController < ApplicationController
   end
 end
 
+
+
+

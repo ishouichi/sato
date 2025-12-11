@@ -27,11 +27,19 @@ Rails.application.routes.draw do
       patch 'profile', to: 'profiles#update'
 
       # 祭り管理
-      resources :festivals, only: %i[index new create edit update destroy]
+      resources :festivals, only: %i[index new create edit update destroy] do
+        resources :participants, only: %i[index update]
+      end
     end
   end
 
   get "home/index"
+
+  # 参加者向け祭り・参加申込
+  resources :festivals, only: %i[index show] do
+    resources :festival_participations, only: %i[new create], path: 'participations'
+  end
+
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.

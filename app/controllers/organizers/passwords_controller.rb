@@ -28,3 +28,6 @@ class Organizers::PasswordsController < Devise::PasswordsController
   end
 end
 
+
+
+

@@ -4,3 +4,6 @@ class AddCategoryToActiveStorageBlobs < ActiveRecord::Migration[8.1]
     add_index :active_storage_blobs, :category
   end
 end
+
+
+

@@ -1,0 +1,78 @@
+.bg-white.min-h-screen.pb-24.relative
+  - if @festival.image.attached?
+    .relative.h-64
+      = image_tag @festival.image, alt: @festival.name, class: "w-full h-full object-cover"
+      .absolute.inset-0.bg-gradient-to-t.from-black.from-80.via-transparent.to-transparent
+      .absolute.bottom-6.left-4.right-4.text-white
+        - if @festival.published?
+          %span.bg-red-500.text-xs.font-bold.px-2.py-0_5.rounded 募集中
+        %span.bg-white.bg-opacity-20.backdrop-blur.text-xs.font-bold.px-2.py-0_5.rounded.flex.items-center.gap-1.ml-2
+          %i.fa-regular.fa-calendar
+          = @festival.start_at.strftime('%m/%d')
+        %h1.text-2xl.font-bold.leading-tight.mb-1.mt-2= @festival.name
+        %p.text-sm.opacity-90.flex.items-center.gap-1
+          %i.fa-solid.fa-location-dot
+          = "#{@festival.prefecture} #{@festival.city}"
+
+  .px-5.py-6.space-y-8
+    - unless @festival.image.attached?
+      %div
+        %h1.text-2xl.font-bold.text-gray-900.mb-2= @festival.name
+        - if @festival.published?
+          %span.bg-red-500.text-white.text-xs.font-bold.px-2.py-0_5.rounded 募集中
+        %p.text-sm.text-gray-600.mt-2
+          %i.fa-regular.fa-calendar
+          = @festival.start_at.strftime('%Y年%m月%d日')
+          %br
+          %i.fa-solid.fa-location-dot
+          = "#{@festival.prefecture} #{@festival.city}"
+
+    %section
+      %h3.font-bold.text-gray-800.mb-2.flex.items-center.gap-2
+        %i.fa-solid.fa-circle-info.text-indigo-600
+        祭りについて
+      - if @festival.description.present?
+        %p.text-sm.text-gray-600.leading-relaxed.bg-indigo-50.p-4.rounded-xl.border.border-indigo-100= @festival.description
+      - else
+        %p.text-sm.text-gray-500.leading-relaxed.bg-gray-50.p-4.rounded-xl 詳細情報は準備中です。
+
+    %section.grid.grid-cols-2.gap-4
+      .border.border-gray-100.p-3.rounded-xl.shadow-sm
+        .text-xs.text-gray-400.mb-1 開催日時
+        .font-bold.text-lg.text-gray-800
+          = @festival.start_at.strftime('%m/%d')
+          %br
+          .text-sm.font-normal= @festival.start_at.strftime('%H:%M') + '開始'
+      .border.border-gray-100.p-3.rounded-xl.shadow-sm
+        .text-xs.text-gray-400.mb-1 募集人数
+        .font-bold.text-lg.text-gray-800
+          = @festival.capacity
+          %span.text-xs.font-normal.text-gray-500 人
+
+    %section
+      %h3.font-bold.text-gray-800.mb-4.flex.items-center.gap-2
+        %i.fa-solid.fa-location-dot.text-indigo-600
+        集合場所
+      %p.text-sm.text-gray-700.mb-2= @festival.meeting_place_name
+      - if @festival.address.present?
+        %p.text-xs.text-gray-500= @festival.address
+
+    - if @participation.present?
+      .bg-green-50.border.border-green-200.rounded-xl.p-4.text-center
+        %p.text-green-800.font-bold.mb-2 既に参加申込済みです
+        %p.text-sm.text-green-700 ステータス: #{@participation.status.humanize}
+
+  .fixed.bottom-0.left-0.right-0.bg-white.border-t.border-gray-100.p-4.pb-8.shadow-2xl.safe-area-bottom
+    .flex.items-center.gap-4.max-w-md.mx-auto
+      - if user_signed_in?
+        - if @participation.present?
+          .flex-1.text-center
+            %p.text-sm.text-gray-600 既に参加申込済みです
+        - else
+          = link_to new_festival_festival_participation_path(@festival), class: "flex-1 bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-bold py-3.5 px-6 rounded-full shadow-lg shadow-indigo-200 active:scale-95 transition-all flex items-center justify-center gap-2" do
+            %span この祭りに参加する
+      - else
+        = link_to new_user_session_path, class: "flex-1 bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-bold py-3.5 px-6 rounded-full shadow-lg shadow-indigo-200 active:scale-95 transition-all flex items-center justify-center gap-2" do
+          %span ログインして参加する
+
+

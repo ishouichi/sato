@@ -3,6 +3,8 @@
 class Festival < ApplicationRecord
   belongs_to :organization
 
+  has_many :festival_participations, dependent: :destroy
+
   has_one_attached :image, dependent: nil
 
   after_commit :set_image_category, on: %i[create update]
@@ -31,6 +33,9 @@ class Festival < ApplicationRecord
   validates :published, inclusion: { in: [true, false] }
   validates :image, content_type: { in: %w[image/jpeg image/png image/jpg image/gif image/webp], message: "はJPEG、PNG、GIF、またはWebP形式である必要があります" }, if: -> { image.attached? }
 
+  scope :published, -> { where(published: true) }
+  scope :upcoming, -> { where('start_at >= ?', Time.current) }
+
   private def set_image_category
     return unless image.attached?
 
@@ -43,3 +48,5 @@ class Festival < ApplicationRecord
     image.blob.update!(updates) if updates.present?
   end
 end
+
+

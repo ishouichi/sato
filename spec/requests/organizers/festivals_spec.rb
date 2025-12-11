@@ -218,3 +218,6 @@ RSpec.describe 'Organizers::Festivals', type: :request do
     end
   end
 end
+
+
+

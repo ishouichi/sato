@@ -10,3 +10,6 @@ class OrganizationMembership < ApplicationRecord
   validates :organizer_id, uniqueness: { scope: :organization_id, message: 'は既にこの組織のメンバーです' }
 end
 
+
+
+
