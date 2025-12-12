@@ -10,6 +10,10 @@ Rails.application.routes.draw do
                passwords: 'organizers/passwords'
              }
 
+  devise_scope :organizer do
+    post 'organizers/switch_from_user', to: 'organizers/sessions#switch_from_user', as: :switch_to_organizer_from_user
+  end
+
   # 主催者向け管理画面（認証必須）
   namespace :organizers do
     authenticate :organizer do
@@ -25,6 +29,7 @@ Rails.application.routes.draw do
       # プロフィール設定
       get 'profile', to: 'profiles#edit'
       patch 'profile', to: 'profiles#update'
+      post 'profile/switch_to_user', to: 'profiles#switch_to_user', as: :profile_switch_to_user
 
       # 祭り管理
       resources :festivals, only: %i[index new create edit update destroy] do
@@ -37,8 +42,12 @@ Rails.application.routes.draw do
 
   # 参加者向け祭り・参加申込
   resources :festivals, only: %i[index show] do
-    resources :festival_participations, only: %i[new create], path: 'participations'
+    resources :festival_participations, only: %i[new create], path: 'participations' do
+      patch :cancel, on: :member
+    end
   end
+  get 'participations', to: 'festival_participations#index', as: :user_participations
+  get 'participations/history', to: 'festival_participations#history', as: :user_past_participations
 
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 

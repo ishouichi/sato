@@ -1,26 +1,30 @@
 .container.mx-auto.px-4.py-8
   .max-w-4xl.mx-auto
     .bg-white.shadow-lg.rounded-lg.p-8
-      %h1.text-4xl.font-bold.text-gray-800.mb-6.text-center= t("home.index.welcome")
+      %h1.text-4xl.font-bold.text-gray-800.mb-6.text-center= t('home.index.welcome')
 
       - if user_signed_in?
         .text-center.space-y-4.mb-8.pb-8.border-b
           %h2.text-2xl.font-bold.text-gray-700 ユーザー（参加者）としてログイン中
           %p.text-lg.text-gray-600
-            = t("home.index.logged_in_as")
-            %strong.text-gray-800.font-semibold= current_user.email
-          = link_to t("home.index.log_out"), destroy_user_session_path, data: { turbo_method: :delete }, class: "inline-block bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded transition duration-200"
+            = t('home.index.logged_in_as')
+            %strong.text-gray-800.font-semibold= current_user.nickname
+
+          - if Organizer.exists?(email: current_user.email)
+            = button_to t('home.index.switch_to_organizer'), switch_to_organizer_from_user_path, method: :post, class: 'inline-block bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded transition duration-200'
+
+          = link_to t('home.index.log_out'), destroy_user_session_path, data: { turbo_method: :delete }, class: 'inline-block bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded transition duration-200'
 
       - if organizer_signed_in?
         .text-center.space-y-4.mb-8
           %h2.text-2xl.font-bold.text-gray-700 主催者としてログイン中
           %p.text-lg.text-gray-600
-            = t("home.index.logged_in_as")
+            = t('home.index.logged_in_as')
             %strong.text-gray-800.font-semibold= current_organizer.name
             = "(#{current_organizer.email})"
           .flex.justify-center.gap-4
-            = link_to "ダッシュボードへ", organizers_dashboard_path, class: "bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-6 rounded transition duration-200"
-            = link_to t("home.index.log_out"), destroy_organizer_session_path, data: { turbo_method: :delete }, class: "inline-block bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded transition duration-200"
+            = link_to 'ダッシュボードへ', organizers_dashboard_path, class: 'bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-6 rounded transition duration-200'
+            = link_to t('home.index.log_out'), destroy_organizer_session_path, data: { turbo_method: :delete }, class: 'inline-block bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded transition duration-200'
 
       - unless user_signed_in? || organizer_signed_in?
         .grid.grid-cols-1.md:grid-cols-2.gap-8
@@ -29,13 +33,13 @@
             %h2.text-2xl.font-bold.text-blue-800.mb-4 ユーザー（参加者）の方
             %p.text-gray-600.mb-6 祭りに参加する、神輿を担ぐ方はこちら
             .flex.flex-col.gap-3
-              = link_to t("home.index.log_in"), new_user_session_path, class: "bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded transition duration-200"
-              = link_to t("home.index.sign_up"), new_user_registration_path, class: "bg-white border-2 border-blue-600 text-blue-600 hover:bg-blue-50 font-bold py-3 px-6 rounded transition duration-200"
+              = link_to t('home.index.log_in'), new_user_session_path, class: 'bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded transition duration-200'
+              = link_to t('home.index.sign_up'), new_user_registration_path, class: 'bg-white border-2 border-blue-600 text-blue-600 hover:bg-blue-50 font-bold py-3 px-6 rounded transition duration-200'
 
           -# 主催者向けセクション
           .bg-green-50.rounded-lg.p-6.text-center
             %h2.text-2xl.font-bold.text-green-800.mb-4 主催者（組織）の方
             %p.text-gray-600.mb-6 祭りを主催する、組織を管理する方はこちら
             .flex.flex-col.gap-3
-              = link_to "主催者ログイン", new_organizer_session_path, class: "bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded transition duration-200"
-              = link_to "主催者登録", new_organizer_registration_path, class: "bg-white border-2 border-green-600 text-green-600 hover:bg-green-50 font-bold py-3 px-6 rounded transition duration-200"
+              = link_to '主催者ログイン', new_organizer_session_path, class: 'bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded transition duration-200'
+              = link_to '主催者登録', new_organizer_registration_path, class: 'bg-white border-2 border-green-600 text-green-600 hover:bg-green-50 font-bold py-3 px-6 rounded transition duration-200'

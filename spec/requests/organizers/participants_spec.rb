@@ -28,7 +28,7 @@ RSpec.describe 'Organizers::Participants', type: :request do
       published: true
     )
   end
-  let(:user) { User.create!(email: 'participant@example.com', password: 'password123') }
+  let(:user) { User.create!(email: 'participant@example.com', password: 'password123', real_name: '参加者太郎', nickname: '参加者ニックネーム') }
   let!(:participation) do
     FestivalParticipation.create!(
       user: user,
@@ -52,7 +52,7 @@ RSpec.describe 'Organizers::Participants', type: :request do
 
       it 'displays participations' do
         get organizers_festival_participants_path(festival)
-        expect(response.body).to include(user.email)
+        expect(response.body).to include(user.real_name)
         expect(response.body).to include('参加します！')
       end
 
@@ -143,6 +143,5 @@ RSpec.describe 'Organizers::Participants', type: :request do
     end
   end
 end
-
 
 

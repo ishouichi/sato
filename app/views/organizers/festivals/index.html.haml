@@ -29,7 +29,7 @@
                 = link_to edit_organizers_festival_path(festival), class: "flex-grow group" do
                   .flex.items-center.gap-2.mb-1
                     %i.fa-solid.fa-location-dot.text-gray-400.text-xs
-                    %span.text-xs.text-gray-500= "#{festival.prefecture} #{festival.city}"
+                    %span.text-xs.text-gray-500= [festival.prefecture, festival.city].join(' ')
                   %h3.font-bold.text-lg.text-gray-800.leading-tight.group-hover:text-indigo-600.transition-colors= festival.name
 
                 .flex.flex-col.items-end.gap-3.ml-4

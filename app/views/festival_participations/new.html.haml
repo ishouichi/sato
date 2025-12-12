@@ -12,7 +12,7 @@
           = @festival.start_at.strftime('%Y年%m月%d日 %H:%M')
         .flex.items-center.gap-2
           %i.fa-solid.fa-location-dot.text-indigo-600
-          = "#{@festival.prefecture} #{@festival.city}"
+          = [@festival.prefecture, @festival.city].join(' ')
         - if @festival.meeting_place_name.present?
           .flex.items-center.gap-2
             %i.fa-solid.fa-map-marker-alt.text-indigo-600
@@ -36,5 +36,6 @@
       .fixed.bottom-0.left-0.right-0.bg-white.border-t.border-gray-100.p-4.pb-8.shadow-2xl.safe-area-bottom
         .max-w-md.mx-auto
           = f.submit "この内容で参加申込する", class: "w-full bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-bold py-3.5 px-6 rounded-full shadow-lg shadow-indigo-200 active:scale-95 transition-all"
+      -# keep final newline for haml-lint
 
 

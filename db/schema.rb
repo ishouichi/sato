@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_10_041506) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_11_061808) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -48,6 +48,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_10_041506) do
   end
 
   create_table "festival_participations", force: :cascade do |t|
+    t.text "cancel_reason"
     t.datetime "checkin_at"
     t.bigint "checkin_by_id"
     t.datetime "created_at", null: false
@@ -127,6 +128,8 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_10_041506) do
     t.datetime "created_at", null: false
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
+    t.string "nickname"
+    t.string "real_name"
     t.datetime "remember_created_at"
     t.datetime "reset_password_sent_at"
     t.string "reset_password_token"

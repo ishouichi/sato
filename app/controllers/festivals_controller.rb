@@ -25,7 +25,12 @@ class FestivalsController < ApplicationController
 
   def show
     @festival = Festival.published.find(params[:id])
-    @participation = current_user&.festival_participations&.find_by(festival: @festival)
+    @participation = current_user&.festival_participations
+                                 &.where(festival: @festival)
+                                 &.where.not(status: FestivalParticipation.statuses[:canceled])
+                                 &.first
+    @confirmed_participant_count = @festival.confirmed_participations.count
+    @waitlist_count = @festival.waitlisted_participations.count
   rescue ActiveRecord::RecordNotFound
     redirect_to root_path, alert: '祭りが見つかりませんでした。'
   end

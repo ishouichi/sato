@@ -35,6 +35,29 @@ class Festival < ApplicationRecord
 
   scope :published, -> { where(published: true) }
   scope :upcoming, -> { where('start_at >= ?', Time.current) }
+  scope :past, -> { where('start_at < ?', Time.current) }
+
+  def confirmed_participations
+    festival_participations.where(status: %w[confirmed checked_in])
+  end
+
+  def waitlisted_participations
+    festival_participations.where(status: 'waitlisted')
+  end
+
+  def promote_from_waitlist!
+    return if waitlisted_participations.empty?
+
+    transaction do
+      confirmed_count = confirmed_participations.count
+      return if confirmed_count >= capacity
+
+      next_waitlisted = waitlisted_participations.order(:created_at).first
+      return unless next_waitlisted
+
+      next_waitlisted.update!(status: 'confirmed')
+    end
+  end
 
   private def set_image_category
     return unless image.attached?

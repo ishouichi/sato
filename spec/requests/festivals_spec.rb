@@ -138,6 +138,44 @@ RSpec.describe 'Festivals', type: :request do
       expect(response.body).to include(published_future_festival.name)
     end
 
+    it 'displays participant counts and waitlist count' do
+      user1 = User.create!(email: 'user1@example.com', password: 'password123', real_name: 'ユーザー1')
+      user2 = User.create!(email: 'user2@example.com', password: 'password123', real_name: 'ユーザー2')
+      user3 = User.create!(email: 'user3@example.com', password: 'password123', real_name: 'ユーザー3')
+
+      FestivalParticipation.create!(
+        user: user1,
+        festival: published_future_festival,
+        status: 'confirmed',
+        payment_status: 'paid'
+      )
+      FestivalParticipation.create!(
+        user: user2,
+        festival: published_future_festival,
+        status: 'checked_in',
+        payment_status: 'paid'
+      )
+      FestivalParticipation.create!(
+        user: user3,
+        festival: published_future_festival,
+        status: 'waitlisted',
+        payment_status: 'unpaid'
+      )
+
+      get festival_path(published_future_festival)
+      expect(response.body).to include('参加人数')
+      expect(response.body).to include('2') # confirmed + checked_in
+      expect(response.body).to include('キャンセル待ち')
+      expect(response.body).to include('1') # waitlisted
+    end
+
+    it 'displays zero counts when no participants' do
+      get festival_path(published_future_festival)
+      expect(response.body).to include('参加人数')
+      expect(response.body).to include('0')
+      expect(response.body).to include('キャンセル待ち')
+    end
+
     it 'does not display unpublished festival' do
       expect do
         get festival_path(unpublished_future_festival)

@@ -7,7 +7,7 @@
           %h2.text-xl.font-semibold.text-gray-700.mb-2 所属組織
           .bg-gray-50.p-4.rounded
             %p.text-gray-800.font-medium= @organization.name
-            %p.text-sm.text-gray-600= "#{@organization.prefecture} #{@organization.city}"
+            %p.text-sm.text-gray-600= [@organization.prefecture, @organization.city].join(' ')
       .grid.grid-cols-1.md:grid-cols-2.gap-4.mt-6
         - if @organization
           = link_to organizers_organization_edit_path, class: "bg-blue-500 hover:bg-blue-600 text-white font-bold py-4 px-6 rounded-lg text-center transition duration-200" do

@@ -5,4 +5,7 @@ class User < ApplicationRecord
          :recoverable, :rememberable, :validatable
 
   has_many :festival_participations, dependent: :destroy
+
+  validates :real_name, presence: true
+  validates :nickname, presence: true
 end
