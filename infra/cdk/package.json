@@ -1,0 +1,29 @@
+{
+  "name": "sato-s3-cdk",
+  "version": "0.1.0",
+  "bin": {
+    "sato-s3-cdk": "bin/sato-s3.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "cdk": "cdk",
+    "synth": "cdk synth",
+    "deploy": "cdk deploy",
+    "destroy": "cdk destroy"
+  },
+  "devDependencies": {
+    "aws-cdk": "2.158.0",
+    "typescript": "^5.6.0"
+  },
+  "dependencies": {
+    "aws-cdk-lib": "2.158.0",
+    "constructs": "^10.0.0",
+    "source-map-support": "^0.5.21"
+  }
+}
+
+
+
+
+

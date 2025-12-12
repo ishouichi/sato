@@ -71,6 +71,7 @@ spec/reports
 .env.development
 .env.production
 .env.staging
+.env
 
 # dump
 latest.dump*
@@ -85,3 +86,7 @@ restore.pgdump.list
 # Ignore key files for decrypting credentials and more.
 /config/*.key
 
+
+node_modules/
+/storage/*
+cdk.out/

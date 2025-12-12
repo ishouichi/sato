@@ -1,0 +1,68 @@
+.bg-slate-50.min-h-screen.flex.flex-col
+  .bg-white.px-4.py-4.border-b.border-gray-200.sticky.top-0.z-10.flex.items-center.gap-4
+    = link_to organizers_festivals_path, class: 'p-2 bg-gray-100 rounded-full hover:bg-gray-200' do
+      %i.fa-solid.fa-chevron-left.text-gray-600
+    %div
+      %h2.text-sm.font-bold.text-gray-500 参加者名簿
+      %p.font-bold.text-gray-900.truncate.w-48= @festival.name
+
+  .p-4.flex-1.overflow-y-auto
+    .flex.justify-between.items-center.mb-4
+      %h3.font-bold.text-lg.text-gray-800.flex.items-center.gap-2
+        %i.fa-solid.fa-users.text-indigo-600
+        応募者一覧 (#{@confirmed_count}名)
+      %button.text-indigo-600.text-sm.font-bold.flex.items-center.gap-1{ type: 'button' }
+        %i.fa-solid.fa-clipboard-list
+        リスト印刷
+
+    .space-y-4
+      - if @participations.any?
+        - @participations.each do |participation|
+          .bg-white.rounded-xl.p-4.shadow-sm.border.border-gray-200
+            .flex.gap-4
+              .w-16.h-16.rounded-full.bg-gray-100.flex.items-center.justify-center.text-gray-400.border-2.border-gray-100
+                %i.fa-solid.fa-user.text-xl
+              .flex-1.pr-2
+                .flex.justify-between.items-start
+                  %div
+                  .flex.items-center.gap-2
+                    %h4.font-bold.text-lg.text-gray-800= participation.user.real_name.presence || participation.user.nickname || '名前未設定'
+
+                - if participation.status == 'confirmed'
+                  %span.inline-block.bg-green-100.text-green-700.font-bold.px-2.py-1.rounded{ class: 'text-[10px]' } 決済・確定済み
+                - elsif participation.status == 'canceled'
+                  %span.inline-block.bg-red-100.text-red-600.font-bold.px-2.py-1.rounded{ class: 'text-[10px]' } キャンセル済み
+                - elsif participation.status == 'checked_in'
+                  %span.inline-block.bg-blue-100.text-blue-700.font-bold.px-2.py-1.rounded{ class: 'text-[10px]' } チェックイン済み
+                - elsif participation.status == 'applied'
+                  %span.inline-block.bg-yellow-100.text-yellow-700.font-bold.px-2.py-1.rounded{ class: 'text-[10px]' } 申込中
+
+                - if participation.user_comment.present?
+                  .bg-gray-50.rounded-lg.p-3.text-sm.text-gray-600.mb-3.relative.mt-2
+                    %span.font-bold.text-gray-400.text-xs.block.mb-1 本人からのコメント:
+                    = ['"', participation.user_comment, '"'].join
+
+                .border-t.border-gray-100.pt-3.mt-3
+                  .flex.items-center.gap-2.mb-2
+                    %i.fa-solid.fa-pen.text-orange-400.text-xs
+                    %span.text-xs.font-bold.text-gray-500 おもてなしメモ（本人には見えません）
+
+                  = form_with url: organizers_festival_participant_path(@festival, participation), method: :patch, local: true, class: 'space-y-2' do |f|
+                    = f.text_area :organizer_memo, value: participation.organizer_memo, class: 'w-full text-sm bg-gray-50 border border-gray-200 rounded px-3 py-2 focus:outline-none focus:ring-1 focus:ring-orange-300', rows: 2, placeholder: '例: 足袋のサイズ、呼び方など'
+                    .flex.items-center.gap-2.mt-2.flex-wrap
+                      .flex.items-center.gap-1
+                        %label.text-xs.text-gray-600.font-bold ステータス:
+                        = f.select :status, options_for_select(FestivalParticipation.statuses.map { |k, v| [k.humanize, v] }, participation.status), {}, { class: 'text-xs border border-gray-300 rounded px-2 py-1' }
+                      .flex.items-center.gap-1
+                        %label.text-xs.text-gray-600.font-bold 支払い:
+                        = f.select :payment_status, options_for_select(FestivalParticipation.payment_statuses.map { |k, v| [k.humanize, v] }, participation.payment_status), {}, { class: 'text-xs border border-gray-300 rounded px-2 py-1' }
+                      = f.submit '更新', class: 'bg-indigo-600 text-white text-xs font-bold px-3 py-1 rounded hover:bg-indigo-700 active:scale-95 transition-transform'
+                    - if participation.checkin_at.present?
+                      .text-xs.text-gray-500.mt-1
+                        %i.fa-solid.fa-check-circle.text-green-500
+                        チェックイン: #{I18n.l(participation.checkin_at, format: :short)}
+      - else
+        .bg-white.rounded-xl.p-4.shadow-sm.border.border-gray-200.text-center.py-8
+          %p.text-gray-500 まだ参加者は登録されていません。
+
+

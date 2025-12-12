@@ -1,0 +1,23 @@
+.container.mx-auto.px-4.py-8
+  .max-w-4xl.mx-auto
+    .bg-white.shadow-lg.rounded-lg.p-8
+      %h1.text-3xl.font-bold.text-gray-800.mb-6 主催者ダッシュボード
+      - if @organization
+        .mb-6
+          %h2.text-xl.font-semibold.text-gray-700.mb-2 所属組織
+          .bg-gray-50.p-4.rounded
+            %p.text-gray-800.font-medium= @organization.name
+            %p.text-sm.text-gray-600= [@organization.prefecture, @organization.city].join(' ')
+      .grid.grid-cols-1.md:grid-cols-2.gap-4.mt-6
+        - if @organization
+          = link_to organizers_organization_edit_path, class: "bg-blue-500 hover:bg-blue-600 text-white font-bold py-4 px-6 rounded-lg text-center transition duration-200" do
+            組織設定
+          = link_to new_organizers_festival_path, class: "bg-purple-500 hover:bg-purple-600 text-white font-bold py-4 px-6 rounded-lg text-center transition duration-200" do
+            新しい祭りを登録する
+        - else
+          = link_to organizers_organization_setup_path, class: "bg-blue-500 hover:bg-blue-600 text-white font-bold py-4 px-6 rounded-lg text-center transition duration-200" do
+            組織を作成する
+        = link_to organizers_profile_path, class: "bg-green-500 hover:bg-green-600 text-white font-bold py-4 px-6 rounded-lg text-center transition duration-200" do
+          プロフィール設定
+      .mt-6.text-center
+        = button_to "ログアウト", destroy_organizer_session_path, method: :delete, class: "text-red-500 hover:text-red-700"

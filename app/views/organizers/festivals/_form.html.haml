@@ -1,0 +1,222 @@
+:css
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .animate-slide-up {
+    animation: slideUp 0.4s ease-out forwards;
+  }
+  /* input[type="time"] のアイコン調整など */
+  input[type="time"]::-webkit-calendar-picker-indicator {
+    background: transparent;
+    bottom: 0;
+    color: transparent;
+    cursor: pointer;
+    height: auto;
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: auto;
+  }
+
+- title = local_assigns[:title] || "募集の作成"
+- submit_text = festival.persisted? ? "募集を更新する" : "募集を開始する"
+
+.bg-white.min-h-screen.flex.flex-col{ data: { controller: "festival-form" } }
+  -# Header
+  .px-6.py-4.border-b.border-gray-100.flex.items-center.justify-between.sticky.top-0.bg-white.z-10
+    %button.text-gray-400{ data: { action: "festival-form#back", festival_form_target: "backButton" } }
+      %i.fa-solid.fa-chevron-left.text-xl
+
+    %span.font-bold.text-gray-800{ data: { festival_form_target: "progressBar" } }= [title, '(1/4)'].join(' ')
+    .w-6
+      -# Spacer to balance header
+
+  -# Form Content
+  .flex-1.p-6.overflow-y-auto
+    = form_with model: [:organizers, festival], local: true, html: { class: "h-full" } do |f|
+      = render "organizers/shared/error_messages", resource: festival
+
+      -# Hidden Fields for DateTime
+      = f.hidden_field :start_at, data: { festival_form_target: "startAt" }
+      = f.hidden_field :end_at, data: { festival_form_target: "endAt" }
+      -# Prefecture is derived from the organizer's organization
+      = f.hidden_field :prefecture, value: festival.prefecture
+
+      -# STEP 1: Basic Info
+      .space-y-8{ data: { festival_form_target: "step" } }
+        %div
+          %h2.text-xl.font-bold.text-gray-900.mb-2{ data: { festival_form_target: "stepTitle" } } 基本情報を教えてください
+          %p.text-sm.text-gray-500{ data: { festival_form_target: "stepDesc" } } いつ、どこで祭りを行いますか？
+
+        .space-y-5
+          %div
+            = f.label :name, "お祭りの名前", class: "block text-sm font-bold text-gray-700 mb-1"
+            = f.text_field :name, placeholder: "例: 〇〇神社 例大祭", class: "w-full text-lg bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+
+          %div
+            = f.label :prefecture, "都道府県", class: "block text-sm font-bold text-gray-700 mb-1"
+            = f.select :prefecture,
+              options_for_select(Organization::PREFECTURES.map { |pref| [pref, pref] }, festival.prefecture),
+              { prompt: "都道府県を選択" },
+              class: "w-full text-lg bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+
+          .grid.grid-cols-2.gap-4
+            %div
+              %label.block.text-sm.font-bold.text-gray-700.mb-1 日付
+              %input.w-full.text-lg.bg-gray-50.border.border-gray-200.rounded-xl.px-4.py-3.focus:ring-2.focus:ring-indigo-500.outline-none.transition-all{ type: "date", value: festival.start_at&.to_date, data: { festival_form_target: "date", action: "change->festival-form#updateDateTime" } }
+
+            %div
+              = f.label :city, "エリア", class: "block text-sm font-bold text-gray-700 mb-1"
+              = f.text_field :city, placeholder: "例: 浅草", class: "w-full text-lg bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+
+          %div
+            = f.label :meeting_place_name, "集合場所", class: "block text-sm font-bold text-gray-700 mb-1"
+            = f.text_field :meeting_place_name, placeholder: "例: 神社社務所前", class: "w-full text-lg bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+            -# address も hidden で送るか、追加フィールドにするか。今回は省略
+
+          .grid.grid-cols-2.gap-4
+            %div
+              %label.block.text-sm.font-bold.text-gray-700.mb-1 集合時間
+              .relative
+                %input.w-full.text-lg.bg-gray-50.border.border-gray-200.rounded-xl.px-4.py-3.focus:ring-2.focus:ring-indigo-500.outline-none.transition-all{ type: "time", value: festival.start_at&.strftime('%H:%M'), data: { festival_form_target: "startTime", action: "change->festival-form#updateDateTime" } }
+            %div
+              %label.block.text-sm.font-bold.text-gray-700.mb-1 終了時間
+              .relative
+                %input.w-full.text-lg.bg-gray-50.border.border-gray-200.rounded-xl.px-4.py-3.focus:ring-2.focus:ring-indigo-500.outline-none.transition-all{ type: "time", value: festival.end_at&.strftime('%H:%M'), data: { festival_form_target: "endTime", action: "change->festival-form#updateDateTime" } }
+
+      -# STEP 2: Conditions
+      .space-y-8.hidden{ data: { festival_form_target: "step" } }
+        %div
+          %h2.text-xl.font-bold.text-gray-900.mb-2 募集条件について
+          %p.text-sm.text-gray-500 どんな人に来てほしいですか？
+
+        .space-y-6
+          -# Counter Input (Using number field for simplicity)
+          .bg-white.p-2.border.border-gray-200.rounded-xl
+            .flex.items-center.justify-between.p-2
+              = f.label :capacity, "募集人数", class: "text-sm font-bold text-gray-700"
+              .flex.items-center.gap-4
+                = f.number_field :capacity, class: "w-20 text-center text-xl font-bold bg-gray-50 border border-gray-200 rounded-lg py-2", min: 1, value: festival.capacity || 10
+                %span.text-sm.font-normal 人
+
+          .bg-gray-50.p-4.rounded-xl.space-y-4.border.border-gray-100
+            -# Toggle inputs (Simulated with Checkboxes)
+            .flex.items-center.justify-between
+              %div
+                .font-bold.text-gray-800.text-sm 初心者は歓迎ですか？
+                .text-xs.text-gray-500 「はい」にすると応募が増えます
+              .flex.items-center
+                %input{ type: "checkbox", class: "w-6 h-6 text-indigo-600 rounded focus:ring-indigo-500 border-gray-300" }
+                -# Note: This will be mapped to a specific attribute or tags in the future
+
+            .h-px.bg-gray-200
+
+            .flex.items-center.justify-between
+              %div
+                .font-bold.text-gray-800.text-sm 半纏（はんてん）は貸出しますか？
+                .text-xs.text-gray-500 手ぶら参加を可能にします
+              .flex.items-center
+                %input{ type: "checkbox", class: "w-6 h-6 text-indigo-600 rounded focus:ring-indigo-500 border-gray-300" }
+
+            .h-px.bg-gray-200
+
+            .flex.items-center.justify-between
+              %div
+                .font-bold.text-gray-800.text-sm 終わった後の乾杯（直会）
+                .text-xs.text-gray-500 参加者との交流はありますか？
+              .flex.items-center
+                %input{ type: "checkbox", class: "w-6 h-6 text-indigo-600 rounded focus:ring-indigo-500 border-gray-300" }
+
+      -# STEP 3: Message & Confirm
+      .space-y-8.hidden{ data: { festival_form_target: "step" } }
+        %div
+          %h2.text-xl.font-bold.text-gray-900.mb-2 アピール・写真
+          %p.text-sm.text-gray-500 祭りの雰囲気を伝えましょう
+
+        .space-y-5
+          %div
+            %label.block.text-sm.font-bold.text-gray-700.mb-2 写真 (イメージ)
+            = hidden_field_tag "festival[existing_image_blob_id]", (festival.image.attached? ? festival.image.blob.id : nil), data: { festival_form_target: "existingImageBlobId" }
+            = f.file_field :image, accept: "image/*", class: "hidden", data: { festival_form_target: "imageInput", action: "change->festival-form#previewAndCompressImage" }
+            %div{ class: "w-full min-h-[16rem] bg-gray-50 rounded-2xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center cursor-pointer hover:bg-gray-100 hover:border-indigo-400 transition-all duration-300 relative overflow-hidden group", data: { action: "click->festival-form#openImagePicker", festival_form_target: "imagePicker" } }
+              - if festival.persisted? && festival.image.attached?
+                = image_tag festival.image, class: "w-full h-auto object-contain max-h-[600px]", data: { festival_form_target: "imagePreview" }
+              - else
+                %img{ class: "hidden w-full h-auto object-contain max-h-[600px]", data: { festival_form_target: "imagePreview" } }
+
+              .flex.flex-col.items-center.justify-center.text-gray-400.z-10.absolute.inset-0.pointer-events-none.transition-opacity.duration-300{ data: { festival_form_target: "imagePlaceholder" }, class: (festival.persisted? && festival.image.attached?) ? "hidden opacity-0" : "opacity-100" }
+                .bg-white.p-4.rounded-full.shadow-sm.mb-3
+                  %i.fa-solid.fa-camera.text-2xl.text-indigo-500
+                %span.text-sm.font-bold.text-gray-500 写真を追加
+                %span.text-xs.text-gray-400.mt-1 タップしてアップロード
+
+              .absolute.inset-0.flex.items-center.justify-center.pointer-events-none.opacity-0.group-hover:opacity-100.transition-opacity.duration-300
+                %span.bg-white.text-gray-800.px-4.py-2.rounded-full.font-bold.shadow-xl.transform.scale-95.group-hover:scale-100.transition-transform.text-sm
+                  %i.fa-solid.fa-pen.mr-2
+                  変更する
+
+          - if available_images.present?
+            .mt-4
+              %p.text-xs.text-gray-500.mb-2 過去に登録した画像から選ぶ
+              .grid.grid-cols-3.gap-3{ data: { festival_form_target: "existingImageList" } }
+                - available_images.each do |blob|
+                  %button{ type: "button", class: "relative border border-gray-200 rounded-xl overflow-hidden focus:outline-none bg-white", data: { action: "click->festival-form#selectExistingImage", festival_form_target: "existingImageItem", blob_id: blob.id } }
+                    = image_tag blob, class: "w-full h-24 object-cover"
+
+          %div
+            = f.label :description, "一言メッセージ", class: "block text-sm font-bold text-gray-700 mb-2"
+            = f.text_area :description, rows: 4, placeholder: "例：今年は人手が足りていません！担ぎ手のみなさんと一緒に盛り上がりたいです。威勢の良い方、お待ちしています！", class: "w-full bg-gray-50 border border-gray-200 rounded-xl p-4 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
+
+          .bg-indigo-50.p-4.rounded-xl.border.border-indigo-100
+            %h4.font-bold.text-indigo-900.text-sm.mb-2 参加費設定: 500円/人
+            %p.text-xs.text-indigo-700
+              システム利用料・保険料を除き、300円×人数分が町内会の収入となります。
+
+      -# STEP 4: Publish Status
+      .space-y-8.hidden{ data: { festival_form_target: "step" } }
+        %div
+          %h2.text-xl.font-bold.text-gray-900.mb-2 公開設定
+          %p.text-sm.text-gray-500 募集を開始しますか？それとも下書きのまま保存しますか？
+
+        .space-y-5
+          .bg-white.border-2.border-gray-200.rounded-xl.p-6.space-y-4
+            .flex.items-start.gap-4
+              = f.radio_button :published, true, checked: festival.published?, class: "mt-1 w-5 h-5 text-indigo-600 focus:ring-indigo-500 border-gray-300"
+              .flex-1
+                .font-bold.text-gray-900.mb-1 募集を開始する
+                .text-sm.text-gray-600
+                  祭りの情報が公開され、参加者からの応募を受け付けます。
+                .mt-2.flex.items-center.gap-2.text-xs.text-green-600
+                  %i.fa-solid.fa-circle-check
+                  %span ステータス: 募集中
+
+            .h-px.bg-gray-200
+
+            .flex.items-start.gap-4
+              = f.radio_button :published, false, checked: !festival.published?, class: "mt-1 w-5 h-5 text-indigo-600 focus:ring-indigo-500 border-gray-300"
+              .flex-1
+                .font-bold.text-gray-900.mb-1 下書きとして保存する
+                .text-sm.text-gray-600
+                  情報は保存されますが、まだ公開されません。後から編集して公開できます。
+                .mt-2.flex.items-center.gap-2.text-xs.text-gray-500
+                  %i.fa-solid.fa-file-lines
+                  %span ステータス: 下書き
+
+          .bg-blue-50.p-4.rounded-xl.border.border-blue-100
+            %div.flex.items-start.gap-2
+              %i.fa-solid.fa-circle-info.text-blue-500.text-lg.mt-0.5
+              .text-xs.text-blue-800
+                %span.font-bold ヒント:
+                下書きとして保存した祭りは、後から「編集」から公開ステータスを変更できます。
+
+      -# Footer Actions
+      .p-4.border-t.border-gray-100.bg-white.mt-auto
+        %button.w-full.bg-indigo-600.text-white.font-bold.py-4.rounded-xl.shadow-lg.flex.items-center.justify-center.gap-2.active:scale-95.transition-transform{ data: { action: "festival-form#next", festival_form_target: "nextButton" } }
+          次へ進む
+          %i.fa-solid.fa-arrow-right
+
+        %button.w-full.bg-green-600.text-white.font-bold.py-4.rounded-xl.shadow-lg.flex.items-center.justify-center.gap-2.active:scale-95.transition-transform.hidden{ data: { festival_form_target: "submitButton" } }
+          %i.fa-solid.fa-circle-check
+          = submit_text

@@ -1,0 +1,7 @@
+# Empty RuboCop TODO configuration.
+# Generate or update with:
+#   bundle exec rubocop --auto-gen-config
+
+AllCops: {}
+
+

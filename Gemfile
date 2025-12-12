@@ -49,9 +49,14 @@ gem "thruster", require: false
 # Use Active Storage variants [https://guides.rubyonrails.org/active_storage_overview.html#transforming-images]
 gem "image_processing", "~> 1.2"
 
+gem "aws-sdk-s3", require: false
+
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"
+
+  # Load environment variables from .env file
+  gem "dotenv-rails"
 
   # Audits gems for known security defects (use config/bundler-audit.yml to ignore issues)
   gem "bundler-audit", require: false
@@ -61,6 +66,14 @@ group :development, :test do
 
   # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
   gem "rubocop-rails-omakase", require: false
+
+  # RuboCop plugins used from .rubocop.yml
+  gem "rubocop-performance", require: false
+  gem "rubocop-rails", require: false
+  gem "rubocop-rspec", require: false
+  gem "rubocop-rspec_rails", require: false
+  gem "rubocop-capybara", require: false
+  gem "rubocop-factory_bot", require: false
 
   # RSpec for testing [https://rspec.info/]
   gem "rspec-rails"

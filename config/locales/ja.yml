@@ -2,24 +2,74 @@ ja:
   activerecord:
     models:
       user: "ユーザー"
+      organizer: "主催者"
+      organization: "組織"
+      festival: "祭り"
     attributes:
       user:
         email: "メールアドレス"
         password: "パスワード"
         password_confirmation: "パスワード（確認）"
         remember_me: "ログイン状態を保持する"
+      organizer:
+        email: "メールアドレス"
+        password: "パスワード"
+        password_confirmation: "パスワード（確認）"
+        name: "担当者名"
+        phone: "電話番号"
+        contact_email: "連絡用メールアドレス"
+        terms_accepted: "利用規約への同意"
+      organization:
+        name: "組織名"
+        prefecture: "都道府県"
+        city: "市区町村"
+        address: "以降の住所"
+        contact_email: "連絡用メールアドレス"
+        phone: "電話番号"
+        website_url: "WebサイトURL"
+        sns_url: "SNS URL"
+        description: "組織紹介文"
+      festival:
+        name: "祭り名"
+        start_at: "開催日時"
+        end_at: "終了日時"
+        prefecture: "都道府県"
+        city: "市区町村"
+        address: "番地・ビル名など"
+        meeting_place_name: "集合場所名"
+        capacity: "募集人数"
+        participation_conditions: "参加条件"
+        description: "祭りの説明"
+        published: "公開設定"
 
   home:
     index:
       welcome: "Satoへようこそ"
       logged_in_as: "ログイン中:"
       log_out: "ログアウト"
+      switch_to_organizer: "主催者アカウントに切り替える"
       please_sign_up_or_log_in: "続行するには新規登録またはログインしてください"
       sign_up: "新規登録"
       log_in: "ログイン"
+
+  date:
+    abbr_day_names:
+      - 日
+      - 月
+      - 火
+      - 水
+      - 木
+      - 金
+      - 土
 
   errors:
     messages:
       not_saved:
         one: "%{resource}に1件のエラーがあります。"
         other: "%{resource}に%{count}件のエラーがあります。"
+      taken: "は既に使用されています。"
+      blank: "を入力してください。"
+      too_short: "は%{count}文字以上で入力してください。"
+      confirmation: "と%{attribute}の入力が一致しません。"
+      invalid: "の形式が正しくありません。"
+      inclusion: "は一覧にありません。"
